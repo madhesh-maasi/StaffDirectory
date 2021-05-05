@@ -54,7 +54,8 @@
 .right {
   grid-column-start: 2;
   grid-column-end: 3;
-  padding: 0 30px;
+  padding: 4px 30px;
+  overflow-y: auto;
 }
 .grid-section {
   height: 100vh;
@@ -117,29 +118,28 @@
   font-size: 24px;
   color: #343434;
 }
-div#SdhEmpTable_length,
-#SdhOutsideTable_length,
+
 #SdhOutsideTable_info,
-#SdhAffilateTable_length,
 #SdhAffilateTable_info,
-#SdhAllumniTable_length,
 #SdhAllumniTable_info,
-#SdhAllPeopleTable_length,
 #SdhAllPeopleTable_info {
   display: none;
 }
-#SdhEmployeeDetails table {
+#SdhEmployeeDetails table,
+#SdgofficeinfoTable {
   width: 100% !important;
 }
 #SdhEmployeeDetails {
   font-family: "Lato", sans-serif;
 }
-#SdhEmployeeDetails th {
+#SdhEmployeeDetails th,
+#SdgofficeinfoTable th {
   color: #878787;
   font-size: 14px;
   font-family: "Lato", sans-serif;
 }
-#SdhEmployeeDetails td {
+#SdhEmployeeDetails td,
+#SdgofficeinfoTable td {
   border-bottom: 1px solid #878787;
 }
 div#SdhEmpTable_info {
@@ -196,6 +196,16 @@ a.paginate_button.current {
 #SdhEmployeeDetails td:nth-child(6) {
   display: none;
 }
+
+#SdgofficeinfoTable th:nth-child(2),
+#SdgofficeinfoTable td:nth-child(2),
+#SdgofficeinfoTable th:nth-child(3),
+#SdgofficeinfoTable td:nth-child(3),
+#SdgofficeinfoTable th:nth-child(6),
+#SdgofficeinfoTable td:nth-child(6) {
+  display: table-cell;
+}
+
 tr.dtrg-group.dtrg-start td {
   background: #bababa;
   width: 200px !important;
@@ -258,7 +268,7 @@ p.profile-user-mail {
   display: inline-block;
 }
 .user-details-section {
-  height: 140px;
+  min-height: 140px;
   padding: 32px 16px;
   width: 80%;
   margin: auto;
@@ -279,3 +289,262 @@ p.profile-user-mail {
 .usernametag {
   cursor: pointer;
 }
+.display-picture img {
+  display: inline-block;
+  height: 40px;
+  width: 40px;
+}
+span.display-picture {
+  margin-right: 10px;
+}
+.dataTables_length select {
+  border-radius: 0 !important;
+}
+.tab-section {
+  margin-top: 20px;
+}
+.nav-tabs {
+  border: 0 !important;
+}
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
+  border: 0 !important;
+}
+.tab-content {
+  background: #f5f5f5;
+  padding: 10px 20px;
+  margin-top: 16px;
+}
+.tab-content h4 {
+  font-weight: bold;
+  color: #545454;
+}
+.nav-tabs li a {
+  color: #545454;
+  font-weight: bold;
+  font-size: 16px;
+}
+.nav-tabs li.active a,
+.nav-tabs li.active a:hover,
+.nav-tabs li.active a:focus {
+  color: #d62d02;
+  border-bottom: 1px solid #d62d02 !important;
+}
+.tab-section label {
+  width: 150px;
+  font-weight: 400;
+  padding-top: 6px;
+}
+.tav-section h5 {
+  font-weight: bold;
+}
+.exp {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+.col-6 {
+  width: 50%;
+}
+.exp > div {
+  width: 45%;
+}
+.tab-section h5 {
+  font-weight: bold;
+  font-size: 15px;
+}
+.user-billing-rates {
+  background: rgba(31, 230, 0, 0.2);
+  border: 1px solid #20e300;
+  padding: 12px 20px;
+}
+.d-flex {
+  display: flex;
+}
+.DInfo-left > div,
+.DInfo-right > div {
+  margin-bottom: 24px;
+}
+.lblRight {
+  color: #d62c01b3;
+}
+.exp label {
+  font-weight: 600;
+  font-size: 13px;
+}
+.billing-rates,
+.billing-effective-date {
+  display: flex;
+}
+.lblBlue {
+  color: #0057ff;
+  font-weight: bold;
+}
+.doc-section {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+}
+.doc-section span {
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+  margin-right: 16px;
+}
+.word-doc {
+  background: url(../img/ExtWord.png);
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.excel-doc {
+  background: url(../img/ExtExcel.png);
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.pic-doc {
+  background: url(../img/ExtImage.png);
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.tab-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.edit-btn {
+  width: 30px;
+  height: 30px;
+  background: url(../img/EditPencil.png);
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+.edit-directory textarea {
+  width: 100%;
+  display: block;
+  height: 70px;
+  /* border: 1px solid grey; */
+  resize: none;
+  outline: 0;
+  padding: 3px;
+}
+/* .other-exp textarea {
+  width: 90%;
+} */
+.edit-directory input,
+.edit-directory select,
+.edit-directory textarea {
+  border: 1px solid #a0a0a0;
+  padding: 3px;
+  margin-bottom: 16px;
+  outline: 0;
+}
+.edit-directory input {
+  width: 100%;
+}
+.edit-directory select {
+  width: 50%;
+}
+.w-100 {
+  width: 100%;
+}
+.exp > div:nth-child(1) {
+  margin-right: 8px;
+}
+.edit-directory input,
+.edit-directory select {
+  height: 32px;
+}
+.col-6 {
+  padding: 0 12px;
+}
+.billing-effective-date input,
+.billing-rates input,
+.billing-rates select {
+  width: 200px;
+  height: 26px;
+}
+.btn-section {
+  padding: 20px;
+  text-align: right;
+}
+.btn {
+  padding: 6px 24px;
+  border-radius: 0;
+  border: 1px solid grey;
+  font-weight: bold;
+}
+.btn-submit,
+.btn-submit:hover {
+  color: #fff;
+  background: #d62d02;
+  outline: 0;
+}
+div#BillingRateDetails label {
+  padding-top: 0;
+}
+span#peoplepickerText_TopSpan_InitialHelpText {
+  display: none !important;
+}
+img#peoplepickerText_TopSpan_WaitImage {
+  display: none;
+}
+div#peoplepickerText_TopSpan {
+  display: flex;
+  flex-direction: column-reverse;
+  width: 100% !important;
+}
+ul#peoplepickerText_TopSpan_AutoFillDiv_MenuList {
+  list-style: none;
+}
+input#peoplepickerText_TopSpan_EditorInput {
+  max-width: 100% !important;
+}
+/* Ahmed Code */
+.quantityFilesContainer {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.quantityFilesContainer-static {
+  position: static;
+}
+.custom-file {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.custom-file-input {
+  opacity: 0;
+}
+.custom-file-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 36px;
+  line-height: 32px;
+  padding-left: 15px;
+  padding-right: 15px;
+  border: 1px solid #ccc;
+  top: 0;
+}
+.custom-file-label:before {
+  position: absolute;
+  right: -66px;
+  padding-left: 10px;
+  padding-right: 10px;
+  top: 0;
+  bottom: 0;
+  background: #dd4b39;
+  color: #fff;
+  content: "Browse";
+}
+label.custom-file-label {
+  padding-top: 0;
+}
+/* Ahmed Code */
