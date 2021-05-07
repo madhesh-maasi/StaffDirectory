@@ -8,7 +8,9 @@ import { escape } from "@microsoft/sp-lodash-subset";
 import styles from "./StaffdirectoryWebPart.module.scss";
 import * as strings from "StaffdirectoryWebPartStrings";
 import { SPComponentLoader } from "@microsoft/sp-loader";
-SPComponentLoader.loadScript("https://ajax.aspnetcdn.com/ajax/4.0/1/MicrosoftAjax.js");
+SPComponentLoader.loadScript(
+  "https://ajax.aspnetcdn.com/ajax/4.0/1/MicrosoftAjax.js"
+);
 
 import * as $ from "jquery";
 import { sp } from "@pnp/sp/presets/all";
@@ -16,11 +18,11 @@ import { graph } from "@pnp/graph";
 
 import "@pnp/graph/users";
 import "@pnp/graph/photos";
-import "@pnp/sp/profiles"; 
-// SPComponentLoader.loadScript(
-//   "https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.4.min.js"
-//   // "https://code.jquery.com/jquery-3.5.1.js"
-// );
+import "@pnp/sp/profiles";
+SPComponentLoader.loadScript(
+  "https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.4.min.js"
+  // "https://code.jquery.com/jquery-3.5.1.js"
+);
 
 import "../../ExternalRef/CSS/style.css";
 
@@ -38,14 +40,14 @@ SPComponentLoader.loadCss(
   "https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css"
 );
 
-var that:any;
+var that: any;
 declare var SP: any;
 declare var SPClientPeoplePicker: any;
 declare var SPClientPeoplePicker_InitStandaloneControlWrapper: any;
 
 export interface IStaffdirectoryWebPartProps {
   description: string;
-} 
+}
 
 setTimeout(function () {
   SPComponentLoader.loadScript(
@@ -65,11 +67,16 @@ setTimeout(function () {
   );
 }, 1000);
 
-
 let UserDetails = [];
 let listUrl = "";
 let bioAttachArr = [];
-
+let SelectedUser = "";
+let ItemID = 0;
+let SelectedUserProfile = [];
+let selectedUsermail = "";
+let CCodeHtml = "";
+let CCodeArr = [];
+let OfficeAddArr = [];
 export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffdirectoryWebPartProps> {
   public onInit(): Promise<void> {
     return super.onInit().then((_) => {
@@ -204,7 +211,7 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
        </div>
      </div> 
      <div class="card">  
-       <div class="card-header nav-items" id="headingEight">
+       <div class="card-header nav-items SDGBillingRate" id="headingEight">
            <div data-toggle="collapse" class="clsToggleCollapse" data-target="#collapseEight" aria-expanded="false" aria-controls="collapseEight"><span class="nav-icon billing-rate"></span>Billing Rates</div>
        </div>
        <div id="collapseEight" class="clsCollapse collapse" aria-labelledby="headingEight" data-parent="#accordionExample">
@@ -333,7 +340,21 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
      </tbody>
      </table>
      </div>
-     
+     <div class="sdgbillingrateTable oDataTable hide">
+     <table  id="SdgBillingrateTable">
+     <thead>
+     <tr>
+     <th>Name</th>
+     <th>Satff Function</th> 
+     <th>Daily Rate</th>
+     <th>Hourly Rate</th>
+     <th>Effective Date</th>
+     </tr>
+     </thead>
+     <tbody id="SdgBillingrateTbody">
+     </tbody>
+     </table>
+     </div>
      </div>
      
      <div class="user-profile-page hide">
@@ -354,37 +375,42 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
      <div class="profile-details-left">
      <div class="user-info">
      <label>Job Title:</label>
-     <div class="title-font" id="user-job-title">IT Manager</div>
+     <div class="title-font" id="user-job-title"></div>
      </div>
      <div class="user-info">   
-     <label>Designation:</label> 
-     <div class="title-font" id="user-Designation">Employee</div>
+     <label>SDG Affiliation :</label> 
+     <div class="title-font" id="user-Designation"></div>
+     </div>
+     <div class="user-info">   
+     <label>Staff Function :</label> 
+     <div class="title-font" id="user-staff-function"></div>
      </div>
      <div class="user-info">
      <label>Office:</label>
-     <div class="title-font" id="user-office">Chennai</div>
+     <div class="title-font" id="user-office"></div>
      </div>
      </div>
      <div class="profile-details-right">
      <div class="user-info"> 
      <label>Mobile:</label>
-     <div class="title-font" id="user-phone">+91 909090909</div>
+     <div class="title-font" id="user-phone"></div>
      </div>
      <div class="user-info">   
      <label>Email:</label> 
      <div class="title-font" ><div id="user-mail"></div><div id="personal-mail"></div></div> 
      </div>
+     <div class="user-info hide"><label>Personal Mail :</label><div class="title-font" id="userpersonalmail"></div></div> 
      </div> 
      </div>
      </div>
      <div class="user-profile-tabs">
      <div class="tab-section"> 
-     <div class="tab-header-section"> 
+     <div class="tab-header-section">  
      <ul class="nav nav-tabs">
        <li class="active"><a data-toggle="tab" href="#home">Directory Information</a></li>
        <li><a data-toggle="tab" href="#menu1">Availability</a></li>
      </ul>
-     <div class="edit-btn"id="btnEdit"></div>
+     <div  ><button class="btn btn-edit" id="btnEdit">Edit</button></div>
      </div>
      <div>
      <div class="tab-content">
@@ -393,9 +419,15 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       <div class="DInfo-left col-6">
       <div class="work-address">
       <h4>Work Address</h4>
-      <div class="address-details lblRight" id="WAddressDetails">
-  
+      <div class="d-flex"><label>Location :</label><div class="address-details lblRight" id="WLoctionDetails"></div></div>
+      <div class="d-flex align-item-center"><label>Location Address:</label><div class="address-details lblRight" id="WAddressDetails"></div>
+      </div> 
       </div>
+      <div class="social-info">
+      <div class="d-flex align-item-center"><label>LinkedIn :</label><div class="" id="linkedinIDview"></div></div>
+      </div>
+      <div class="Assistant-view" id="viewAssistant">
+      
       </div>
       <div class="personal-info">
       <h4>Personal Info</h4>
@@ -405,6 +437,36 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       <div><label>State:</label><label id="PAddState" class="lblRight"></label></div>
       <div><label>Postal Code :</label><label id="PAddPCode" class="lblRight"></label></div> 
       <div><label>Country:</label><label id="PAddPCountry" class="lblRight"></label></div>
+      <div><label>Significant Other :</label><label id="PSignOther" class="lblRight"></label></div>
+      <div><label>Children :</label><label id="PChildren" class="lblRight"></label></div>
+      </div>
+      </div>
+      
+      
+      </div>
+      <div class="DInfo-right col-6">
+      <div class="StaffStatus">
+      <h4>Staff Status</h4>
+      <p class="lblRight" id="staffStatus"></p> 
+      <div id="workscheduleViewSec">
+      <div class="d-flex"><label>Work Schedule</label><p class="lblRight" id="workSchedule"></p></div>
+      
+      </div>
+      </div>
+      <div class="citizen-info">
+      
+      <div class="address-details" id="CitizenInfo"> 
+      <div><label>Nationality :</label><label id="citizenship" class="lblRight"></label></div>
+      </div>
+      </div>
+      <div class="user-billing-rates">
+      <h4>Billing Rates</h4>
+      <div id="BillingRateDetails">
+      <div class="billing-rates"><label>USD Daily Rates</label><div class="usd-daily-rate" id="UsdDailyRate"></div></div>
+      <div class="billing-rates"><label>USD Hourly Rates</label><div class="usd-hourly-rate" id="UsdHourlyRate"></div></div>
+      <div class="billing-rates"><label>EUR Daily Rates</label><div class="eur-daily-rate" id="EURDailyRate"></div></div>
+      <div class="billing-rates"><label>EUR Hourly Rates</label><div class="eur-hourly-rate" id="EURHourlyRate"></div></div>
+      <div class="billing-effective-date"><label>Effective Date</label><div class="effective-date" id="EffectiveDate"></div></div>
       </div>
       </div>
       <div class="Biography-Experience"> 
@@ -443,35 +505,6 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       </div>
       </div>
       </div>
-      
-      </div>
-      <div class="DInfo-right col-6">
-      <div class="StaffStatus">
-      <h4>Staff Status</h4>
-      <p class="lblRight" id="staffStatus"></p>
-      <div id="workscheduleViewSec">
-      <h5>Work Schedule</h5>
-      <p class="lblRight" id="workSchedule"></p>
-      </div>
-      </div>
-      <div class="citizen-info">
-      <h4>Citizenship</h4>
-      <div class="address-details" id="CitizenInfo"> 
-      <div><label>Citizen:</label><label id="citizenship" class="lblRight"></label></div>
-      </div>
-      </div>
-      <div class="user-billing-rates">
-      <h4>Billing Rates</h4>
-
-      <div id="BillingRateDetails">
-      <div class="billing-rates"><label>USD Daily Rates</label><div class="usd-daily-rate" id="UsdDailyRate"></div></div>
-      <div class="billing-rates"><label>USD Hourly Rates</label><div class="usd-hourly-rate" id="UsdHourlyRate"></div></div>
-      <div class="billing-rates"><label>EUR Daily Rates</label><div class="eur-daily-rate" id="EURDailyRate"></div></div>
-      <div class="billing-rates"><label>EUR Hourly Rates</label><div class="eur-hourly-rate" id="EURHourlyRate"></div></div>
-      <div class="billing-effective-date"><label>Effective Date</label><div class="effective-date" id="EffectiveDate"></div></div>
-      </div>
-      </div>
-      
       </div>  
       </div> 
       <div id="DirectoryInformationEdit" class="edit-directory hide">
@@ -482,6 +515,24 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       <div class="address-details d-flex" id="editWorAddress">
       <label>Location</label>
       <div class="w-100"><select id="workLocationDD"></select></div>
+      </div>
+      <div class="Location-Addresses d-flex">
+      <label>Location Address</label>
+      <div class="address-details lblRight w-100" id="EditedAddressDetails">
+
+      </div>
+      </div>
+      </div>
+      <div class="staff-function-edit-info">
+      <div class="d-flex">
+      <label>Staff Function</label>
+      <div class="w-100"><select id="StaffFunctionEdit"></select></div>
+      </div>
+      </div>
+      <div class="staff-affiliates-edit-info">
+      <div class="d-flex">
+      <label>Staff Affiliates</label>
+      <div class="w-100"><select id="StaffAffiliatesEdit"></select></div>
       </div>
       </div>
       <div class="assisstant-info">
@@ -496,9 +547,9 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       <h4>Contact Info</h4>
       <div class="address-details" id="ContactInfo"> 
       <div class="d-flex"><label>Personal Mail :</label><div class="w-100"><input type="text" id="personalmailID"></div></div>
-      <div class="d-flex"><label>Mobile No :</label><div class="w-100"><textarea id="mobileno"></textarea></div></div>
-      <div class="d-flex"><label>Home No :</label><div class="w-100"><textarea id="homeno"></textarea></div></div>
-      <div class="d-flex"><label>Emergency No :</label><div class="w-100"><textarea id="emergencyno"></textarea></div></div>
+      <div class="d-flex"><label>Mobile No :</label><div class="w-100" id ="mobileNoSec"><div class="d-flex mobNumbers"><select class="mobNoCode"></select><input type="number" class="mobNo" id="mobileno1"/><span class="addMobNo add-icon"></span></div></div></div>
+      <div class="d-flex"><label>Home No :</label><div class="w-100" id="homeNoSec"><div class="d-flex homeNumbers"><select class="homeNoCode"></select><input type="number" class="homeno" id="homeno"/><span class="addHomeNo add-icon"></span></div></div></div>
+      <div class="d-flex"><label>Emergency No :</label><div class="w-100" id="emergencyNoSec"><div class="d-flex emergencyNumbers"><select class="emergencyNoCode"></select><input type="number" class="emergencyno" id="emergencyno" /><span class="addEmergencyNo add-icon"></span></div></div></div>
       
       <div class="d-flex"><label>Significant Other :</label><div class="w-100"><textarea id="significantOther"></textarea></div></div>
       <div class="d-flex"><label>Children :</label><div class="w-100"><textarea id="children"></textarea></div></div>
@@ -516,7 +567,39 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       </div>
       </div>
 
+      </div> 
 
+      <div class="DInfo-right col-6">
+      <div class="StaffStatus">
+      <h4>Staff Status</h4> 
+      <div class="d-flex w-100"> 
+      <label>Status</label><div class="w-100"><select id="staffstatusDD"></select></div></div>
+      <div id="workscheduleEdit">
+      <div class="d-flex w-100 hide" id="workscheduleSec">
+      <label>Work Schedule</label>
+      <div class="w-100"><input type="text" id="workScheduleE"></div>
+      </div>
+      </div>
+      </div> 
+      <div class="citizen-info">
+      <div class="address-details" id="CitizenInfo"> 
+      <div class="d-flex w-100"><label>Nationality:</label><div class="w-100"><input type="text" id="citizenshipE"></div></div>
+      </div>
+      </div>
+      <div class="user-billing-rates">
+      <h4>Billing Rates</h4>
+
+      <div id="BillingRateDetailsEdit">
+      <div class="billing-rates"><label>USD Daily Rates</label><div class="usd-daily-rate"></div><input type="number" id="USDDailyEdit"/></div>
+      <div class="billing-rates"><label>USD Hourly Rates</label><div class="usd-hourly-rate"></div><input type="number" id="USDHourlyEdit" disabled/></div>
+      <div class="billing-rates"><label>EUR Daily Rates</label><div class="eur-daily-rate"></div><input type="number" id="EURDailyEdit"/></div>
+      <div class="billing-rates"><label>EUR Hourly Rates</label><div class="eur-hourly-rate"></div><input type="number" id="EURHourlyEdit" disabled/></div>
+      <div class="billing-rates"><label>Other Currency</label><div class="eur-hourly-rate"></div><select id="othercurrDD"></select></div>
+      <div class="billing-rates"><label>Daily Rate</label><div class="eur-hourly-rate"></div><input type="number" id="ODailyEdit"/></div>
+      <div class="billing-rates"><label>Hourly Rate</label><div class="eur-hourly-rate"></div><input type="number" id="OHourlyEdit" disabled/></div>
+      <div class="billing-effective-date"><label>Effective Date</label><div class="effective-date"><input type="date" id="EffectiveDateEdit"/></div></div>
+      </div>
+      </div>
       <div class="Biography-Experience"> 
       <h4>Biography and Experience</h4>
       <div class="address-details" id="BioExp">  
@@ -528,10 +611,9 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
 <input type="file" name="myFile" id="BioAttachEdit" multiple class="custom-file-input">
 <label class="custom-file-label" for="BioAttachEdit">Choose File</label>
 </div>
+<div class="quantityFilesContainer quantityFilesContainer-static" id="filesfromfolder"></div>
 <div class="quantityFilesContainer quantityFilesContainer-static" id="otherAttachmentFiles"></div>
 
-
-      
       </div>
       <div class="other-exp">
       <h5>Other Experience Details</h5> 
@@ -563,38 +645,6 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       </div>
       </div>
       </div>
-
-  
-      <div class="DInfo-right col-6">
-      <div class="StaffStatus">
-      <h4>Staff Status</h4> 
-      <div class="d-flex w-100"> 
-      <label>Status</label><div class="w-100"><select id="staffstatusDD"></select></div></div>
-      <div class="d-flex w-100 hide" id="workscheduleSec">
-      <label>Work Schedule</label>
-      <div class="w-100"><input type="text" id="workScheduleE"></div>
-      </div>
-      </div> 
-      <div class="citizen-info">
-      <div class="address-details" id="CitizenInfo"> 
-      <div class="d-flex w-100"><label>Citizen:</label><div class="w-100"><input type="text" id="citizenshipE"></div></div>
-      </div>
-      </div>
-      <div class="user-billing-rates">
-      <h4>Billing Rates</h4>
-
-      <div id="BillingRateDetailsEdit">
-      <div class="billing-rates"><label>USD Daily Rates</label><div class="usd-daily-rate"></div><input type="number" id="USDDailyEdit"/></div>
-      <div class="billing-rates"><label>USD Hourly Rates</label><div class="usd-hourly-rate"></div><input type="number" id="USDHourlyEdit" disabled/></div>
-      <div class="billing-rates"><label>EUR Daily Rates</label><div class="eur-daily-rate"></div><input type="number" id="EURDailyEdit"/></div>
-      <div class="billing-rates"><label>EUR Hourly Rates</label><div class="eur-hourly-rate"></div><input type="number" id="EURHourlyEdit" disabled/></div>
-      <div class="billing-rates"><label>Other Currency</label><div class="eur-hourly-rate"></div><select id="othercurrDD"></select></div>
-      <div class="billing-rates"><label>Daily Rate</label><div class="eur-hourly-rate"></div><input type="number" id="ODailyEdit"/></div>
-      <div class="billing-rates"><label>Hourly Rate</label><div class="eur-hourly-rate"></div><input type="number" id="OHourlyEdit" disabled/></div>
-      <div class="billing-effective-date"><label>Effective Date</label><div class="effective-date"><input type="date" id="EffectiveDateEdit"/></div></div>
-      </div>
-      </div>
-      </div>
       
       </div>
       <div class="btn-section">
@@ -619,8 +669,10 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
     const tableSection = document.querySelector(".sdh-employee");
     const viewDir = document.querySelector(".view-directory");
     const editDir = document.querySelector(".edit-directory");
-    const editbtn = document.querySelector(".edit-btn");
-    
+    const editbtn = document.querySelector(".btn-edit");
+
+    // ! Side Nav Click Action
+{
     $(".clsToggleCollapse").click(function () {
       $(".clsCollapse").each(function () {
         $(this).removeClass("in").attr("style", "");
@@ -629,11 +681,13 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
     });
     onLoadData();
     ActiveSwitch();
-    $(".SDHEmployee").click(() => { 
-      if(viewDir.classList['contains']("hide")){
+    $(".SDHEmployee").click(() => {
+      SelectedUserProfile = [];
+      if (viewDir.classList["contains"]("hide")) {
         viewDir.classList.remove("hide");
         editDir.classList.add("hide");
         editbtn.classList.remove("hide");
+        
       }
       if (tableSection.classList.contains("hide")) {
         tableSection.classList.remove("hide");
@@ -643,6 +697,7 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
           order: [[0, "asc"]],
           lengthMenu: [50, 100],
         };
+        
         bindEmpTable(options);
       } else {
         var options = {
@@ -654,12 +709,12 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       }
     });
     $(".OutsidConsultant").click(() => {
-      if(viewDir.classList['contains']("hide")){
+      if (viewDir.classList["contains"]("hide")) {
         viewDir.classList.remove("hide");
         editDir.classList.add("hide");
         editbtn.classList.remove("hide");
       }
-      if (tableSection.classList.contains("hide")) { 
+      if (tableSection.classList.contains("hide")) {
         tableSection.classList.remove("hide");
         userpage.classList.add("hide");
         var options = {
@@ -678,7 +733,7 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       }
     });
     $(".SDHAffiliates").click(() => {
-      if(viewDir.classList['contains']("hide")){
+      if (viewDir.classList["contains"]("hide")) {
         viewDir.classList.remove("hide");
         editDir.classList.add("hide");
         editbtn.classList.remove("hide");
@@ -702,7 +757,7 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       }
     });
     $(".SDHAlumini").click(() => {
-      if(viewDir.classList['contains']("hide")){
+      if (viewDir.classList["contains"]("hide")) {
         viewDir.classList.remove("hide");
         editDir.classList.add("hide");
         editbtn.classList.remove("hide");
@@ -726,7 +781,7 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       }
     });
     $(".SDHShowAll").click(() => {
-      if(viewDir.classList['contains']("hide")){
+      if (viewDir.classList["contains"]("hide")) {
         viewDir.classList.remove("hide");
         editDir.classList.add("hide");
         editbtn.classList.remove("hide");
@@ -748,7 +803,7 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       }
     });
     $(".SDGOfficeInfo").click(() => {
-      if(viewDir.classList['contains']("hide")){
+      if (viewDir.classList["contains"]("hide")) {
         viewDir.classList.remove("hide");
         editDir.classList.add("hide");
         editbtn.classList.remove("hide");
@@ -761,7 +816,7 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
           order: [[0, "asc"]],
         };
         bindOfficeTable(options);
-      }else{
+      } else {
         var options = {
           destroy: true,
           order: [[0, "asc"]],
@@ -769,6 +824,8 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
         bindOfficeTable(options);
       }
     });
+
+  }
     // Employee Filters
     $(".sdhLocgrouping").click(() => {
       SdhEmpTableRowGrouping(4, "SdhEmpTable", bindEmpTable);
@@ -779,7 +836,7 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
     $(".sdhAssistantgrouping").click(() => {
       SdhEmpTableRowGrouping(7, "SdhEmpTable", bindEmpTable);
     });
-    $(".sdhfirstnamesort").click(() => {  
+    $(".sdhfirstnamesort").click(() => {
       var options = {
         destroy: true,
         order: [[1, "asc"]],
@@ -863,33 +920,68 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       bindAllDetailTable(options);
     });
 
+    $("#btnEdit").click(() => {
+      editFunction();
+    });
 
-
-
+    $("#BtnSubmit").click(() => {
+      editsubmitFunction();
+    });
+    $("#BtnCancel").click(() => {
+      editcancelFunction();
+    });
 
     $(document).on("change", "#BioAttachEdit", function () {
       if ($(this)[0].files.length > 0) {
         for (let index = 0; index < $(this)[0].files.length; index++) {
-          const file = $("#BioAttachEdit")[0]['files'][index];
+          const file = $("#BioAttachEdit")[0]["files"][index];
           // if (ValidateSingleInput($("#others")[0])) {
-            bioAttachArr.push(file);
-            $("#otherAttachmentFiles").append(
-              '<div class="quantityFiles">' +
-                "<span class=upload-filename>" +
-                file.name +
-                "</span>" +
-                "<a filename='" +
-                file.name +
-                "' class=clsothersRemove href='#'>x</a></div>"
-            );
+          bioAttachArr.push(file);
+          $("#otherAttachmentFiles").append(
+            '<div class="quantityFiles">' +
+              "<span class=upload-filename>" +
+              file.name +
+              "</span>" +
+              "<a filename='" +
+              file.name +
+              "' class=clsRemove href='#'>x</a></div>"
+          );
           // }
         }
         $(this).val("");
         $(this).parent().find("label").text("Choose File");
       }
-      console.log(bioAttachArr);
-      
+      // console.log(bioAttachArr);
     });
+    $(document).on("click", ".clsRemove", function () {
+      // console.log(bioAttachArr);
+      //var filename=$(this).attr('filename');
+      var filename = $(this).parent().children()[0].innerText;
+      removeSelectedfile(filename);
+      $(this).parent().remove();
+    });
+
+    
+    $(document).on("click", ".remove-icon", function () {
+      $(this).parent().remove();
+    });
+
+    $(document).on("change", "#staffstatusDD", function(){
+      if ($("#staffstatusDD").val() == "Part-time") {
+        $("#workscheduleSec").removeClass("hide");
+      } else if($("#staffstatusDD").val() == "Full-time"){
+        $("#workscheduleSec").addClass("hide");
+        $("#workscheduleSec").val("");
+      }
+    });
+
+    $(document).on("change","#workLocationDD",function(){
+      $("#EditedAddressDetails").html(OfficeAddArr.filter(
+        (add) => $("#workLocationDD").val() == add.OfficePlace
+      )[0].OfficeFullAdd);
+    })
+
+    
   }
 
   protected get dataVersion(): Version {
@@ -922,23 +1014,67 @@ const onLoadData = async () => {
   let StaffStatusDD = document.querySelector("#staffstatusDD");
   let LocationDD = document.querySelector("#workLocationDD");
   let othercurrDD = document.querySelector("#othercurrDD");
-  let LocOptionHtml ="";
+  let StaffFunctionDD = document.querySelector("#StaffFunctionEdit");
+  let StaffAffiliatesDD = document.querySelector("#StaffAffiliatesEdit");
+  let LocOptionHtml = "";
   let staffOptionHtml = "";
-  let otherCurrHtml ="";
-  let listLocation = await sp.web.getList(listUrl + "StaffDirectory").fields.filter("EntityPropertyName eq 'SDGOffice'").get();
-  let listStaffStatus = await sp.web.getList(listUrl + "StaffDirectory").fields.filter("EntityPropertyName eq 'StaffStatus'").get();
-  let listOtherCurr = await sp.web.getList(listUrl + "StaffDirectory").fields.filter("EntityPropertyName eq 'OtherCurrency'").get();
- 
-  listLocation[0]['Choices'].forEach((li)=>{
-    LocOptionHtml += `<option value="${li}">${li}</option>`
-  })
-  listStaffStatus[0]['Choices'].forEach((stff)=>{
-    staffOptionHtml +=`<option value="${stff}">${stff}</option>`
-  })
-  listOtherCurr[0]['Choices'].forEach((curr)=>{otherCurrHtml +=`<option value="${curr}">${curr}</option>`})
+  let otherCurrHtml = "";
+  let StaffFunHtml = "";
+  let StaffAffHtml = "";
+  // let CCodeHtml = "";
+  let listLocation = await sp.web
+    .getList(listUrl + "StaffDirectory")
+    .fields.filter("EntityPropertyName eq 'SDGOffice'")
+    .get();
+  let listStaffStatus = await sp.web
+    .getList(listUrl + "StaffDirectory")
+    .fields.filter("EntityPropertyName eq 'StaffStatus'")
+    .get();
+  let listOtherCurr = await sp.web
+    .getList(listUrl + "StaffDirectory")
+    .fields.filter("EntityPropertyName eq 'OtherCurrency'")
+    .get();
+  let CountryCode = await sp.web
+    .getList(listUrl + "StaffDirectory")
+    .fields.filter("EntityPropertyName eq 'CountryCode'")
+    .get();
+  let listStaffFunction = await sp.web
+  .getList(listUrl + "StaffDirectory")
+  .fields.filter("EntityPropertyName eq 'stafffunction'")
+  .get();
+  let listStaffAff = await sp.web
+  .getList(listUrl + "StaffDirectory")
+  .fields.filter("EntityPropertyName eq 'SDGAffiliation'")
+  .get();
+  
+
+  listLocation[0]["Choices"].forEach((li) => {
+    LocOptionHtml += `<option value="${li}">${li}</option>`;
+  });
+  listStaffStatus[0]["Choices"].forEach((stff) => {
+    staffOptionHtml += `<option value="${stff}">${stff}</option>`;
+  });
+  listOtherCurr[0]["Choices"].forEach((curr) => {
+    otherCurrHtml += `<option value="${curr}">${curr}</option>`;
+  });
+  CountryCode[0]["Choices"].forEach((CCode) => {
+    CCodeArr.push(CCode);
+    CCodeHtml += `<option value="${CCode}">${CCode}</option>`;
+  });
+  listStaffFunction[0]["Choices"].forEach((func) => {
+    StaffFunHtml += `<option value="${func}">${func}</option>`;
+  });
+  listStaffAff[0]["Choices"].forEach((Aff) => {
+    StaffAffHtml += `<option value="${Aff}">${Aff}</option>`;
+  });
+
   LocationDD.innerHTML = LocOptionHtml;
   StaffStatusDD.innerHTML = staffOptionHtml;
   othercurrDD.innerHTML = otherCurrHtml;
+  StaffFunctionDD.innerHTML = StaffFunHtml;
+  StaffAffiliatesDD.innerHTML = StaffAffHtml;
+
+  $(".mobNoCode,.homeNoCode,.emergencyNoCode").html(CCodeHtml);
   await sp.web
     .getList(listUrl + "StaffDirectory")
     .items.select(
@@ -964,6 +1100,7 @@ const onLoadData = async () => {
           UserPersonalMail: li.PersonalEmail,
           JobTitle: li.User.JobTitle,
           Assistant: li.Assistant.Title,
+          AssistantMail: li.Assistant.EMail,
           PhoneNumber: li.MobileNo != null ? li.MobileNo : "N/A",
           Location: li.SDGOffice,
           Title: li.stafffunction != null ? li.stafffunction : "N/A",
@@ -985,25 +1122,25 @@ const onLoadData = async () => {
           USDHourly: li.USDHourlyRate,
           EURDaily: li.EURDailyRate,
           EURHourly: li.EURHourlyRate,
-          OtherCurr:li.OtherCurrency,
-          OtherCurrDaily:li.ODailyRate,
-          OtherCurrHourly:li.OHourlyRate,
+          OtherCurr: li.OtherCurrency,
+          OtherCurrDaily: li.ODailyRate,
+          OtherCurrHourly: li.OHourlyRate,
           EffectiveDate: li.EffectiveDate,
-          StaffStatus:li.StaffStatus,
-          WorkSchedule:li.WorkingSchedule,
-          ItemID:li.ID,
-          LinkedInID:li.LinkedInLink,
-          SignOther:li.signother,
-          Child:li.children,
-          HomeNo:li.HomeNo,
-          EmergencyNo:li.EmergencyNo,
+          StaffStatus: li.StaffStatus,
+          WorkSchedule: li.WorkingSchedule,
+          ItemID: li.ID,
+          LinkedInID: li.LinkedInLink,
+          SignOther: li.signother,
+          Child: li.children,
+          HomeNo: li.HomeNo,
+          EmergencyNo: li.EmergencyNo,
+          Test:li.TestUrl
         });
       });
       getTableData();
       console.log(UserDetails);
-      
     });
-  UserProfileDetail();
+  // UserProfileDetail();
 };
 const ActiveSwitch = () => {
   let navItems = document.querySelectorAll(".nav-items");
@@ -1033,10 +1170,12 @@ const ActiveSwitch = () => {
           ? $(".sdh-AllPeople-table").removeClass("hide")
           : selectedOption["classList"].contains("SDGOfficeInfo")
           ? $(".sdgofficeinfotable").removeClass("hide")
+          : selectedOption["classList"].contains("SDGBillingRate")
+          ? $(".sdgbillingrateTable").removeClass("hide")
           : "";
       });
     });
-  }); 
+  });
 };
 async function getTableData() {
   let OfficeTable = "";
@@ -1045,31 +1184,96 @@ async function getTableData() {
   let AffTable = "";
   let AlumTable = "";
   let AllDetailsTable = "";
+  let BillingRateTable = "";
   let OfficeDetails = await sp.web
     .getList(listUrl + "SDGOfficeInfo")
     .items.get();
   // console.log(OfficeDetails);
   OfficeDetails.forEach((oDetail) => {
-    OfficeTable += `<tr><td>${oDetail.Office}</td><td>${oDetail.Phone !="null"?oDetail.Phone.split(
-      "^"
-    ).join("</br>"):""}</td><td>${oDetail.Address != "null"?oDetail.Address.split("^").join(
-      "</br>"
-    ):""}</td></tr>`;
+    OfficeTable += `<tr><td>${oDetail.Office}</td><td>${
+      oDetail.Phone != "null" ? oDetail.Phone.split("^").join("</br>") : ""
+    }</td><td>${
+      oDetail.Address != "null" ? oDetail.Address.split("^").join("</br>") : ""
+    }</td></tr>`;
   });
+
   UserDetails.forEach((details) => {
+    // console.log(details.PhoneNumber.split("^"));
+    let ViewPhoneNumber = details.PhoneNumber.split("^");
+    ViewPhoneNumber.pop();
+
     if (details.Affiliation == "Employee") {
-      EmpTable += `<tr><td class="usernametag">${details.Name}</td><td>${details.FirstName}</td><td>${details.LastName}</td><td>${details.PhoneNumber}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${details.Title}</td><td>${details.Assistant}</td></tr>`;
+      EmpTable += `<tr><td class="usernametag">${details.Name}</td><td>${
+        details.FirstName
+      }</td><td>${details.LastName}</td><td>${ViewPhoneNumber.join(
+        ","
+      )}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${
+        details.Title
+      }</td><td>${details.Assistant}</td></tr>`;
     }
     if (details.Affiliation == "Outside Consultant") {
-      OutTable += `<tr><td class="usernametag">${details.Name}</td><td>${details.FirstName}</td><td>${details.LastName}</td><td>${details.PhoneNumber}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${details.Title}</td><td>${details.Assistant}</td></tr>`;
+      OutTable += `<tr><td class="usernametag">${details.Name}</td><td>${
+        details.FirstName
+      }</td><td>${details.LastName}</td><td>${ViewPhoneNumber.join(
+        ","
+      )}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${
+        details.Title
+      }</td><td>${details.Assistant}</td></tr>`;
     }
     if (details.Affiliation == "Affiliate") {
-      AffTable += `<tr><td class="usernametag">${details.Name}</td><td>${details.FirstName}</td><td>${details.LastName}</td><td>${details.PhoneNumber}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${details.Title}</td><td>${details.Assistant}</td></tr>`;
+      AffTable += `<tr><td class="usernametag">${details.Name}</td><td>${
+        details.FirstName
+      }</td><td>${details.LastName}</td><td>${ViewPhoneNumber.join(
+        ","
+      )}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${
+        details.Title
+      }</td><td>${details.Assistant}</td></tr>`;
     }
     if (details.Affiliation == "Alumni") {
-      AlumTable += `<tr><td class="usernametag">${details.Name}</td><td>${details.FirstName}</td><td>${details.LastName}</td><td>${details.PhoneNumber}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${details.Title}</td><td>${details.Assistant}</td></tr>`;
+      AlumTable += `<tr><td class="usernametag">${details.Name}</td><td>${
+        details.FirstName
+      }</td><td>${details.LastName}</td><td>${ViewPhoneNumber.join(
+        ","
+      )}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${
+        details.Title
+      }</td><td>${details.Assistant}</td></tr>`;
     }
-    AllDetailsTable += `<tr><td class="usernametag">${details.Name}</td><td>${details.FirstName}</td><td>${details.LastName}</td><td>${details.PhoneNumber}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${details.Title}</td><td>${details.Assistant}</td></tr>`;
+    AllDetailsTable += `<tr><td class="usernametag">${details.Name}</td><td>${
+      details.FirstName
+    }</td><td>${details.LastName}</td><td>${ViewPhoneNumber.join(
+      ","
+    )}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${
+      details.Title
+    }</td><td>${details.Assistant}</td></tr>`;
+    BillingRateTable += `<tr><td class="usernametag">${details.Name}</td><td>${
+      details.Title
+    }</td><td><div>${
+      details.USDDaily == "" || details.USDDaily == null
+        ? ""
+        : `USD ${details.USDDaily}`
+    }</div><div>${
+      details.EURDaily == "" || details.EURDaily == null
+        ? ""
+        : `EUR ${details.EURDaily}`
+    }</div><div>${
+      details.OtherCurrDaily == "" || details.OtherCurrDaily == null
+        ? ""
+        : `${details.OtherCurr}${details.OtherCurrDaily}`
+    }</div></td><td><div>${
+      details.USDHourly == "" || details.USDHourly == null
+        ? ""
+        : `USD ${details.USDHourly}`
+    }</div><div>${
+      details.EURHourly == "" || details.EURHourly == null
+        ? ""
+        : `EUR ${details.EURHourly}`
+    }</div><div>${
+      details.OtherCurrHourly == "" || details.OtherCurrHourly == null
+        ? ""
+        : `${details.OtherCurr}${details.OtherCurrHourly}`
+    }</div></td><td>${
+      details.EffectiveDate == null ? "" : details.EffectiveDate
+    }</td></tr>`;
   });
   $("#SdhEmpTbody").html(EmpTable);
   $("#SdhOutsideTbody").html(OutTable);
@@ -1077,6 +1281,7 @@ async function getTableData() {
   $("#SdhAllumniTbody").html(AlumTable);
   $("#SdhAllPeopleTbody").html(AllDetailsTable);
   $("#SdgofficeinfoTbody").html(OfficeTable);
+  $("#SdgBillingrateTbody").html(BillingRateTable);
   var options = {
     order: [[0, "asc"]],
     lengthMenu: [50, 100],
@@ -1087,6 +1292,7 @@ async function getTableData() {
   bindAlumTable(options);
   bindAllDetailTable(options);
   bindOfficeTable(options);
+  bindBillingRateTable(options);
   UserProfileDetail();
 }
 const bindEmpTable = (options) => {
@@ -1106,6 +1312,9 @@ const bindAllDetailTable = (options) => {
 };
 const bindOfficeTable = (option) => {
   $("#SdgofficeinfoTable").DataTable(option);
+};
+const bindBillingRateTable = (option) => {
+  $("#SdgBillingrateTable").DataTable(option);
 };
 //Todo TableRowGrouping
 const SdhEmpTableRowGrouping = (colno, tablename, tablefn) => {
@@ -1135,75 +1344,68 @@ const SdhEmpTableRowGrouping = (colno, tablename, tablefn) => {
     // table.draw(false);
   });
   tablefn(options);
-  UserProfileDetail();
+  // UserProfileDetail();
 };
 
-function startIt()
-{
-        var schema = {};
-        schema['PrincipalAccountType'] = 'User,DL,SecGroup,SPGroup';
-        schema['SearchPrincipalSource'] = 15;
-        schema['ResolvePrincipalSource'] = 15;
-        schema['AllowMultipleValues'] = true;
-        schema['MaximumEntitySuggestions'] = 50;
-        schema['Width'] = '280px';
+function startIt() {
+  var schema = {};
+  schema["PrincipalAccountType"] = "User,DL,SecGroup,SPGroup";
+  schema["SearchPrincipalSource"] = 15;
+  schema["ResolvePrincipalSource"] = 15;
+  schema["AllowMultipleValues"] = false;
+  schema["MaximumEntitySuggestions"] = 50;
+  schema["Width"] = "280px";
 
-        // Render and initialize the picker.
-        // Pass the ID of the DOM element that contains the picker, an array of initial
-        // PickerEntity objects to set the picker value, and a schema that defines
-        // picker properties.
-        SPClientPeoplePicker_InitStandaloneControlWrapper("peoplepickerText", null, schema);
+  // Render and initialize the picker.
+  // Pass the ID of the DOM element that contains the picker, an array of initial
+  // PickerEntity objects to set the picker value, and a schema that defines
+  // picker properties.
+  SPClientPeoplePicker_InitStandaloneControlWrapper(
+    "peoplepickerText",
+    null,
+    schema
+  );
 }
 
 const UserProfileDetail = async () => {
-  await SPComponentLoader.loadScript("/_layouts/15/init.js").then(() => {});
-  await SPComponentLoader.loadScript("/_layouts/15/1033/sts_strings.js");
-  await SPComponentLoader.loadScript("/_layouts/15/clientforms.js");
-  await SPComponentLoader.loadScript("/_layouts/15/clienttemplates.js");
-  await SPComponentLoader.loadScript("/_layouts/15/clientpeoplepicker.js");
-  await SPComponentLoader.loadScript("/_layouts/15/autofill.js");
-  await SPComponentLoader.loadScript("/_layouts/15/SP.js");
-  await SPComponentLoader.loadScript("/_layouts/15/sp.runtime.js");
-  await SPComponentLoader.loadScript("/_layouts/15/sp.core.js");
 
-  await startIt();
 
-  
   //(<any>$("#peoplepickerText")).spPeoplePicker();
 
   const viewDir = document.querySelector(".view-directory");
   const editDir = document.querySelector(".edit-directory");
   const editbtn = document.querySelector(".edit-btn");
-  const submitbtn = document.querySelector('#BtnSubmit');
-  const cancelbtn = document.querySelector('#BtnCancel');
-  let ItemID = 0;
-  let OfficeAddArr = [];
+  const submitbtn = document.querySelector("#BtnSubmit");
+  const cancelbtn = document.querySelector("#BtnCancel");
+  ItemID = 0;
+  OfficeAddArr = [];
   let office = await sp.web.getList(listUrl + "SDGOfficeInfo").items.get();
   office.forEach((off) => {
     OfficeAddArr.push({ OfficePlace: off.Office, OfficeFullAdd: off.Address });
   });
-  let SelectedUser = "";
+  SelectedUser = "";
   const userpage = document.querySelector(".user-profile-page");
   const username = document.querySelectorAll(".usernametag");
   const sdhEmp = document.querySelector(".sdh-employee");
-  
-  const Edit = document.querySelector("#btnEdit");
-const UserView = document.querySelector('.view-directory');
-const UserEdit = document.querySelector('.edit-directory');
-const StaffStatus = document.querySelector('#staffstatusDD');
-const WorkscheduleSection = document.querySelector('#workscheduleSec');
 
-  username.forEach( (btn) => {
-    btn.addEventListener("click", async(e) => {
+  const Edit = document.querySelector("#btnEdit");
+  const UserView = document.querySelector(".view-directory");
+  const UserEdit = document.querySelector(".edit-directory");
+  const StaffStatus = document.querySelector("#staffstatusDD");
+  const WorkscheduleSection = document.querySelector("#workscheduleSec");
+  SelectedUserProfile = [];
+  username.forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
       if (!sdhEmp.classList.contains("hide")) {
         sdhEmp.classList.add("hide");
         userpage.classList.remove("hide");
       }
       SelectedUser = e.currentTarget["textContent"];
-      let SelectedUserProfile = UserDetails.filter((li) => {
+      
+      SelectedUserProfile = UserDetails.filter((li) => {
         return li.Name == SelectedUser;
       });
- 
+
       const specificUser = graph.users
         .getById(SelectedUserProfile[0].Usermail)
         .photo.getBlob()
@@ -1219,54 +1421,101 @@ const WorkscheduleSection = document.querySelector('#workscheduleSec');
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWgAAAFoCAMAAABNO5HnAAAAvVBMVEXh4eGjo6OkpKSpqamrq6vg4ODc3Nzd3d2lpaXf39/T09PU1NTBwcHOzs7ExMS8vLysrKy+vr7R0dHFxcXX19e5ubmzs7O6urrZ2dmnp6fLy8vHx8fY2NjMzMywsLDAwMDa2trV1dWysrLIyMi0tLTCwsLKysrNzc2mpqbJycnQ0NC/v7+tra2qqqrDw8OoqKjGxsa9vb3Pz8+1tbW3t7eurq7e3t62travr6+xsbHS0tK4uLi7u7vW1tbb29sZe/uLAAAG2UlEQVR4XuzcV47dSAyG0Z+KN+ccO+ecHfe/rBl4DMNtd/cNUtXD6DtLIAhCpMiSXwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIhHnfm0cVirHTam884sVu6Q1GvPkf0heq7VE+UF5bt2y97Vat+VlRniev/EVjjp12NlgdEytLWEy5G2hepDYOt7qGob2L23Dd3valPY6dsW+jvaBOKrkm2ldBVrbag+2tYeq1oX6RxYBsF6SY3vA8to8F0roRJaZmFFK2ASWA6CiT6EhuWkoQ9gablZ6l1oW47aWoF8dpvT6FrOunoD5pa7uf6CaslyV6rqD0guzYHLRK/hwJw40Cu4MUdu9Bt8C8yR4Jt+gRbmzEKvUTicFw8kY3NonOg/aJpTTf2AWWBOBTNBkvrmWF+QNDPnZoLUNOeagpKSOVdKhK550BVa5kGLOFfMCxY92ubFuYouNC9CFdyuebKrYrsyL9hcGpgnAxVaXDJPSrGKrGreVFVkU/NmykDJj1sV2Z55s0e74hwtS9k8KvNzxY8ZozvX+L67M4/uVFwT84Kt9CPz6EjFdUqgMyCjCTSHWD4cq7jOzKMzxtGu8ddwxzzaUXHFgXkTxCqwyLyJOON0j9POc/OCpbAj+hU/Zsz9Pbk2T65VbM/mybOKbd882VexjegLPXk0L154uvF/tR5N7RjJB9bvBsLEPJgI5dCcC2P5wL3QlSClJ+bYSSpIqpljh4IkpWNzapzqB3T9vCGBuGUOtWL9hDNPizMYmjND/QIloTkSJvKB4tHRK1iaE0u9hnhgDgxi/QFJZLmLEv0FvbHlbNzTG9ApWa5KHb0J9cByFNT1DhznGOngWO9CvWQ5KdX1AXweWy7Gn/Uh9CLLQdTTCkgPLLODVCshPrSMarHWgUpkGURrl2c83drWbp+0PlRebCsvFW0G+6FtLNzXxlDuXttGrrtlbQPlacvW1ppmCDPOHgJbQ/BwpmyQnh6siHVwcJoqB3iqNx/tHY/N+pPyg7Rz83Xv0n5zuff1ppPKCSS9audf1V6i9QAAAAAAAAAAAAAAAAAAAAAAEMdyAuVeZ9I4H95/uojGgf0QjKOLT/fD88ak0ysrI6SVo9qXRWgrhIsvtaNKqs2hXNlvD0LbSDho71fKWhsxvulf2NYu+jcro42d+e0isMyCxe18R2/D6HQYWY6i4elIryE9brbMgVbzONVP2G3sBeZMsNfYFf5h715302aDIADP2Lw+CIdDQhKcGuIgKKSIk1MSMND7v6zvBvqprdqY3bWfS1itRto/O+52t+KnW+2+OdSYK+5TViS9LxxqyX07p6xUeq7hXl+WPq/AX15QI+9fDryaw5d31EP7HPGqonMb5rmvYwow/upgWTDzKYQ/C2BV3o8oSNTPYVH26FEY7zGDNfnZo0DeOYclwc6jUN4ugBVxZ0HBFp0YJoxaFK41gn7ZGxWYZtDNrSOqEK0dFLscqMbhArXuIioS3UGnHw9U5uEHFCp9quOXUGfrUSFvC11cl0p1nbK+KwHs92yFYyo2DqFEsKdq+wAqhHsqtw+hQHykescY4rnvNOC7g3TPNOEZwt3QiBuINkxpRDqEZFOaMYVgTzTkCWKFGxqyCSHVkqYsIVQQ0ZQogEwJjUkgkvNpjO8g0ZzmzCHRieacIJBLaU7qIE+bBrUhz5YGbSHPmQadIc+EBk0gT48G9SDPPQ06QZ5gQ3M2AQQa0ZwRqtCExz1kClc0ZRVCqFuacguxEhqSQC53pBlHB8HyDY3Y5BDttgnoinRoQgfinZrTuxrxgeodYiiQ+1TOz6HCy4KqLV6gREHVCqjxSsVeociaaq2hyjOVeoYyXarUhTrdZs4VeaQ6j9DIdZsXEhXpU5U+1EqoSALFtlRjC9VGHlXwRlCuTKlAWkK9rEfxehkMCB8o3EMIE1yfovUdrHiKKFb0BEMuPQrVu8CU9xNFOr3DmtcFxVm8wqBsTGHGGUxya4+CeGsHqwZjijEewDAn5Rt9dOdgWzZt6kAqMm/xylpz1EI8i3hF0SxGXQxPvJrTEHXyMuVVTF9QN+WElZuUqKPiyEodC9RV+cbKvJWos0E1TbTe4wB1l89W/GSrWY4G4G4+NUHebhwEkGGYtPgpWskQAkjSXvr8x/xlGz/RKHcr/jOrXYn/1bh0Jh7/mjfpXPALjXC+O/Av7HfzEL+nERbJZME/tpgkRYg/1Mjms48Wf1PrYzbPIIBW8aDY9j/2vsef8vz9R39bDOL/2qlDIwCBGACCOMTLl4klOpP+i4MimFe7DZy7v3rcuaYqej+f3VE1K09+AgAAAAAAAAAAAAAAAAAAAAAAgBf6wsTW1jN3CAAAAABJRU5ErkJggg=="
           );
         });
-        let filesHtml = "";
-        let files = await sp.web.getFolderByServerRelativeUrl(`BiographyDocument/${SelectedUserProfile[0].Usermail}`).files.get();
-        console.log(files);
-        files.forEach((file)=>{
-          console.log(file.Name.split('.').pop());
-          
-          if(file.Name.split('.').pop() == "doc" || file.Name.split('.').pop() =="docx"){
-            filesHtml += `<div class="doc-section"><span class="word-doc"></span><a href='${file.ServerRelativeUrl}' target="_blank">${file.Name}</a></div>`
-          }else
-          if(file.Name.split('.').pop() == "xlsx"){
-            filesHtml += `<div class="doc-section"><span class="excel-doc"></span><a href='${file.ServerRelativeUrl}' target="_blank">${file.Name}</a></div>`
-          }else
-          if(file.Name.split('.').pop() == "png" || file.Name.split('.').pop() =="jpg" ||file.Name.split('.').pop() == "jpeg"){
-            filesHtml += `<div class="doc-section"><span class="pic-doc"></span><a href='${file.ServerRelativeUrl}' target="_blank">${file.Name}</a></div>`
-          }else{
-            filesHtml += `<div class="doc-section"><span class="new-doc"></span><a href='${file.ServerRelativeUrl}' target="_blank">${file.Name}</a></div>`
-          }
-        })
-        
-         
+      let filesHtml = "";
+      let editfileHtml = "";
+      let files = await sp.web
+        .getFolderByServerRelativeUrl(
+          `BiographyDocument/${SelectedUserProfile[0].Usermail}`
+        )
+        .files.get();
+      // console.log(files);
+      files.forEach((file) => {
+        // console.log(file.Name.split(".").pop());
+
+        if (
+          file.Name.split(".").pop() == "doc" || 
+          file.Name.split(".").pop() == "docx"
+        ) {
+          filesHtml += `<div class="doc-section"><span class="word-doc"></span><a href='${file.ServerRelativeUrl}' target="_blank">${file.Name}</a></div>`;
+          editfileHtml += `<div class="quantityFiles"><span class="upload-filename">${file.Name}</span><a filename="${file.Name}" class="clsfileremove">x</a></div>`;
+        } else if (file.Name.split(".").pop() == "xlsx" || file.Name.split(".").pop() == "csv") {
+          filesHtml += `<div class="doc-section"><span class="excel-doc"></span><a href='${file.ServerRelativeUrl}' target="_blank">${file.Name}</a></div>`;
+          editfileHtml += `<div class="quantityFiles"><span class="upload-filename">${file.Name}</span><a href='${file.ServerRelativeUrl}' filename="${file.Name}" class="clsfileremove">x</a></div>`;
+        } else if (
+          file.Name.split(".").pop() == "png" ||
+          file.Name.split(".").pop() == "jpg" ||
+          file.Name.split(".").pop() == "jpeg"
+        ) {
+          filesHtml += `<div class="doc-section"><span class="pic-doc"></span><a href='${file.ServerRelativeUrl}' target="_blank">${file.Name}</a></div>`;
+          editfileHtml += `<div class="quantityFiles"><span class="upload-filename">${file.Name}</span><a href='${file.ServerRelativeUrl}' filename="${file.Name}" class="clsfileremove">x</a></div>`;
+        } else {
+          filesHtml += `<div class="doc-section"><span class="new-doc"></span><a href='${file.ServerRelativeUrl}' target="_blank">${file.Name}</a></div>`;
+          editfileHtml += `<div class="quantityFiles"><span class="upload-filename">${file.Name}</span><a href='${file.ServerRelativeUrl}' filename="${file.Name}" class="clsfileremove">x</a></div>`;
+        }
+      });
   
       let billingRateHtml = "";
-      if (SelectedUserProfile[0].USDDaily) {
+      if (SelectedUserProfile[0].USDDaily != null && SelectedUserProfile[0].USDDaily != 0 && SelectedUserProfile[0].USDDaily != "0")
+      {
+       
         billingRateHtml += `<div class="billing-rates"><label>USD Daily Rates</label><div class="usd-daily-rate lblBlue" id="UsdDailyRate">${SelectedUserProfile[0].USDDaily}</div></div><div class="billing-rates"><label>USD Hourly Rates</label><div class="usd-hourly-rate lblBlue" id="UsdHourlyRate">${SelectedUserProfile[0].USDHourly}</div></div>`;
       }
-      
-      if (SelectedUserProfile[0].EURDaily != null) {
+
+      if (
+        SelectedUserProfile[0].EURDaily != null &&
+        SelectedUserProfile[0].EURDaily != 0 &&
+        SelectedUserProfile[0].EURDaily != "0"
+      ) {
         billingRateHtml += `<div class="billing-rates"><label>EUR Daily Rates</label><div class="eur-daily-rate lblBlue" id="EURDailyRate">${SelectedUserProfile[0].EURDaily}</div></div><div class="billing-rates"><label>EUR Hourly Rates</label><div class="eur-hourly-rate lblBlue" id="EURHourlyRate">${SelectedUserProfile[0].EURHourly}</div></div>`;
       }
-      
-      if(SelectedUserProfile[0].OtherCurrDaily != null){
-        billingRateHtml += `<div class="billing-rates"><label>${SelectedUserProfile[0].OtherCurr} Daily Rates</label><div class="eur-daily-rate lblBlue" id="oDailyRate">${SelectedUserProfile[0].OtherCurrDaily}</div></div><div class="billing-rates"><label>${SelectedUserProfile[0].OtherCurr} Hourly Rates</label><div class="eur-hourly-rate lblBlue" id="oHourlyRate">${SelectedUserProfile[0].OtherCurrHourly}</div></div>`
+
+      if (
+        SelectedUserProfile[0].OtherCurrDaily != null &&
+        SelectedUserProfile[0].OtherCurrDaily != 0 &&
+        SelectedUserProfile[0].OtherCurrDaily != "0"
+      ) {
+        billingRateHtml += `<div class="billing-rates"><label>${SelectedUserProfile[0].OtherCurr} Daily Rates</label><div class="eur-daily-rate lblBlue" id="oDailyRate">${SelectedUserProfile[0].OtherCurrDaily}</div></div><div class="billing-rates"><label>${SelectedUserProfile[0].OtherCurr} Hourly Rates</label><div class="eur-hourly-rate lblBlue" id="oHourlyRate">${SelectedUserProfile[0].OtherCurrHourly}</div></div>`;
       }
       if (SelectedUserProfile[0].EffectiveDate != null) {
         billingRateHtml += ` <div class="billing-effective-date"><label>Effective Date</label><div class="effective-date lblBlue" id="EffectiveDate">${new Date(
           SelectedUserProfile[0].EffectiveDate
         ).toLocaleDateString()}</div></div>`;
+      }
+      ItemID = SelectedUserProfile[0].ItemID;
+ 
+      selectedUsermail = SelectedUserProfile[0].Usermail;
+      // console.log(selectedUsermail);
+      if(SelectedUserProfile[0].UserPersonalMail != "" && SelectedUserProfile[0].UserPersonalMail != null) {
+
+        $('#userpersonalmail').parent().removeClass('hide');
+         $('#userpersonalmail').html(SelectedUserProfile[0].UserPersonalMail)
       } 
-      ItemID = SelectedUserProfile[0].ItemID; 
+      else{
+        $('#userpersonalmail').html("")
+        $('#userpersonalmail').parent().addClass('hide');
+      }
+      if(SelectedUserProfile[0].Assistant != null && SelectedUserProfile[0].Assistant !=""){
+        $("#viewAssistant").html(`<div class="d-flex align-item-center">
+        <label>Assistant : </label><div class="lblRight" id="assistantViewpage">${SelectedUserProfile[0].Assistant}</div>
+        </div>`)
+      }else{
+        $("#viewAssistant").html("")  
+      } 
+      console.log(SelectedUserProfile[0].LinkedInID);
       
       
+      // $('#linkedinIDview').html(`<span class="linkedInBtn" id="linkedInBtn">Link</span>`);
+      $('#linkedinIDview').html(`<a href="${SelectedUserProfile[0].LinkedInID.Url}" target ='_blank' data-interception="off">Link</a>`);
+      $('#PSignOther').html(SelectedUserProfile[0].SignOther);
+      $('#PChildren').html(SelectedUserProfile[0].Child);
       $("#user-Designation").html(SelectedUserProfile[0].Affiliation);
+      $("#user-staff-function").html(SelectedUserProfile[0].Title)
       $("#user-job-title").html(SelectedUserProfile[0].JobTitle);
       $("#user-location").html(SelectedUserProfile[0].Location);
       $("#user-office").html(SelectedUserProfile[0].Location);
       $("#user-phone").html(SelectedUserProfile[0].PhoneNumber);
       $("#user-mail").html(SelectedUserProfile[0].Usermail);
-      $('#personal-mail').html(SelectedUserProfile[0].UserPersonalMail);
+      // $("#personal-mail").html(SelectedUserProfile[0].UserPersonalMail);
       $("#UserProfileName").html(SelectedUserProfile[0].Name);
       $("#UserProfileEmail").html(
         `<span class="user-mail-icon"></span>${SelectedUserProfile[0].Usermail}`
@@ -1281,6 +1530,7 @@ const WorkscheduleSection = document.querySelector('#workscheduleSec');
           (add) => SelectedUserProfile[0].Location == add.OfficePlace
         )[0].OfficeFullAdd
       );
+      $("#WLoctionDetails").html(SelectedUserProfile[0].Location)
       $("#shortbio").html(SelectedUserProfile[0].ShortBio);
       $("#citizenship").html(SelectedUserProfile[0].Citizen);
       $("#IndustryExp").html(SelectedUserProfile[0].Industry);
@@ -1290,133 +1540,382 @@ const WorkscheduleSection = document.querySelector('#workscheduleSec');
       $("#MembershipExp").html(SelectedUserProfile[0].Membership);
       $("#SpecialKnowledge").html(SelectedUserProfile[0].SpecialKnowledge);
       $("#BillingRateDetails").html(billingRateHtml);
-      $('#bioAttachment').html(filesHtml);
-      $('#staffStatus').html(SelectedUserProfile[0].StaffStatus);
-      $('#workscheduleViewSec').html(SelectedUserProfile[0].StaffStatus == "Part-time"?`<h5>Work Schedule</h5>
-      <p class="lblRight" id="workSchedule">${SelectedUserProfile[0].WorkSchedule}</p>`:"");
-
-      // Edit Section
-      Edit.addEventListener('click',(btn)=>{
-        if(!UserView.classList.contains("hide")){
-          UserView.classList.add('hide')
-          UserEdit.classList.remove('hide');
-          Edit.classList.add('hide');
-        }else{
-          UserEdit.classList.remove('hide');
-          Edit.classList.add('hide');
-        }
-        $('#PAddLineE').val(SelectedUserProfile[0].HAddLine);
-        $('#PAddCityE').val(SelectedUserProfile[0].HAddCity);
-        $('#PAddStateE').val(SelectedUserProfile[0].HAddState);
-        $('#PAddPCodeE').val(SelectedUserProfile[0].HAddPCode);
-        $('#PAddCountryE').val(SelectedUserProfile[0].HAddPCountry);
-        $('#Eshortbio').val(SelectedUserProfile[0].ShortBio);
-        $('#EIndustry').val(SelectedUserProfile[0].Industry);
-        $('#ELanguage').val(SelectedUserProfile[0].Language);
-        $('#ESDGCourse').val(SelectedUserProfile[0].SDGCourse);
-        $('#ESoftwarExp').val(SelectedUserProfile[0].Software);
-        $('#EMembership').val(SelectedUserProfile[0].Membership);
-        $('#ESKnowledge').val(SelectedUserProfile[0].SpecialKnowledge);
-        $('#citizenshipE').val(SelectedUserProfile[0].Citizen);
-        $("#linkedInID").val(SelectedUserProfile[0].LinkedInID);
-        $('#mobileno').val(SelectedUserProfile[0].PhoneNumber);
-        $('#children').val(SelectedUserProfile[0].Child);
-        $('#significantOther').val(SelectedUserProfile[0].SignOther);
-        $('#USDDailyEdit').val(SelectedUserProfile[0].USDDaily);
-        $('#USDHourlyEdit').val(SelectedUserProfile[0].USDHourly);
-        $('#EURDailyEdit').val(SelectedUserProfile[0].EURDaily);
-        $('#EURHourlyEdit').val(SelectedUserProfile[0].EURHourly);
-        $("#assisstantName").val(SelectedUserProfile[0].Assistant);
-        $("#personalmailID").val(SelectedUserProfile[0].UserPersonalMail);
-        $('#homeno').val(SelectedUserProfile[0].HomeNo); 
-        $('#emergencyno').val(SelectedUserProfile[0].EmergencyNo);
-        $('#workLocationDD').val(SelectedUserProfile[0].Location);
-        $('#staffstatusDD').val(SelectedUserProfile[0].StaffStatus);
-        $('#othercurrDD').val(SelectedUserProfile[0].OtherCurr);
-        $('#ODailyEdit').val(SelectedUserProfile[0].OtherCurrDaily);
-        $('#OHourlyEdit').val(SelectedUserProfile[0].OtherCurrHourly);
-        var  finalmonth:any="";
-        var dd=new Date(SelectedUserProfile[0].EffectiveDate).getDate();
-        var mm=new Date(SelectedUserProfile[0].EffectiveDate).getMonth()+1;
-        mm<10?finalmonth="0"+mm:finalmonth=mm
-        var yyyy=new Date(SelectedUserProfile[0].EffectiveDate).getFullYear()
-var  dateformat=yyyy+"-"+finalmonth+"-"+dd;
-$('#EffectiveDateEdit').val(dateformat);
-if($("#staffstatusDD").val() == "Part-time"){
-  $("#workscheduleSec").classList.remove("hide");
-}else{
-  $("#workscheduleSec").val("")
-}
-      });
+      $("#bioAttachment").html(filesHtml);
+      $("#filesfromfolder").html(editfileHtml);
+      $("#staffStatus").html(SelectedUserProfile[0].StaffStatus);
+      $("#workscheduleViewSec").html(
+        SelectedUserProfile[0].StaffStatus == "Part-time"
+          ? `
+      <div class="d-flex"><label>Work Schedule</label><p class="lblRight" id="workSchedule">${SelectedUserProfile[0].WorkSchedule == null ||SelectedUserProfile[0].WorkSchedule == ""?"N/A":SelectedUserProfile[0].WorkSchedule}</p></div>`
+          : ""
+      );
+      var finalmonth: any = "";
+      var dd = new Date(SelectedUserProfile[0].EffectiveDate).getDate();
+      var mm = new Date(SelectedUserProfile[0].EffectiveDate).getMonth() + 1;
+      mm < 10 ? (finalmonth = "0" + mm) : (finalmonth = mm);
+      var yyyy = new Date(SelectedUserProfile[0].EffectiveDate).getFullYear();
+      var dateformat = yyyy + "-" + finalmonth + "-" + dd;
+      $("#EffectiveDateEdit").val(dateformat);
     });
   });
 
-  $('#USDDailyEdit').change(()=>{
-    var usdvalue:any =$('#USDDailyEdit').val();
-    var finalusdval=usdvalue/8;
-    $('#USDHourlyEdit').val(finalusdval);
+  $("#USDDailyEdit").change(() => {
+    var usdvalue: any = $("#USDDailyEdit").val();
+    var finalusdval = usdvalue / 8;
+    $("#USDHourlyEdit").val(finalusdval);
   });
-  $('#EURDailyEdit').change(()=>{
-    var eurdaily:any = $('#EURDailyEdit').val();
-    var finaleurval = eurdaily/8;
-    $('#EURHourlyEdit').val(finaleurval)
+  $("#EURDailyEdit").change(() => {
+    var eurdaily: any = $("#EURDailyEdit").val();
+    var finaleurval = eurdaily / 8;
+    $("#EURHourlyEdit").val(finaleurval);
   });
-  $('#ODailyEdit').change(()=>{
-    var ovalue:any = $('#ODailyEdit').val();
-    var finalovalue = ovalue/8;
-    $('#OHourlyEdit').val(finalovalue)
-  })
-  submitbtn.addEventListener('click',async()=>{
-    var dispTitle = "APickerField";      
-    var pickerDiv = $("[id$='peoplepickerText'][title='" + dispTitle + "']");      
-    var peoplePicker = SPClientPeoplePicker.SPClientPeoplePickerDict;
-    var userInfo = peoplePicker.peoplepickerText_TopSpan.GetAllUserInfo()
-    const loginName = userInfo[0].EntityData.Email;
-    const profile =  await sp.web.siteUsers.getByEmail(loginName).get();
+  $("#ODailyEdit").change(() => {
+    var ovalue: any = $("#ODailyEdit").val();
+    var finalovalue = ovalue / 8;
+    $("#OHourlyEdit").val(finalovalue);
+  });
+  $(document).on("click", ".clsfileremove", function () {
+    let filename = $(this).attr("filename");
+    $(this).parent().remove();
+    sp.web
+      .getFileByServerRelativeUrl(
+        `/sites/StaffDirectory/BiographyDocument/${SelectedUserProfile[0].Usermail}/${filename}`
+      )
+      .recycle()
+      .then(function (data) {});
+  });
+};
 
-    console.log(profile.Id);
-    console.log(userInfo);
-    
-const update = await sp.web.getList(listUrl + "StaffDirectory").items.getById(ItemID).update({
-  Title: "SDG User Info",
-  PersonalEmail:$("#personalmailID").val(),
-  MobileNo:$('#mobileno').val(),
-  HomeNo:$('#homeno').val(),
-  EmergencyNo:$('#emergencyno').val(),
-  HomeAddLine:$('#PAddLineE').val(),
-  HomeAddCity:$('#PAddCityE').val(),
-  HomeAddState:$('#PAddStateE').val(),
-  HomeAddPCode:$('#PAddPCodeE').val(),
-  HomeAddCountry:$('#PAddCountryE').val(),
-  IndustryExp:$('#EIndustry').val(),
-  LanguageExp:$('#ELanguage').val(),
-  SDGCourses:$('#ESDGCourse').val(),
-  SoftwareExp:$('#ESoftwarExp').val(),
-  Membership:$('#EMembership').val(),
-  SpecialKnowledge:$('#ESKnowledge').val(),
-  Citizenship:$('#citizenshipE').val(),
-  ShortBio:$('#Eshortbio').val(),
-  USDDailyRate:$('#USDDailyEdit').val(),
-  USDHourlyRate:$('#USDHourlyEdit').val(),
-  EURDailyRate:$('#EURDailyEdit').val(),
-  EURHourlyRate:$('#EURHourlyEdit').val(),
-  OtherCurrency:$('#othercurrDD').val(),
-  ODailyRate:$('#ODailyEdit').val(),
-  OHourlyRate:$('#OHourlyEdit').val(),
-  EffectiveDate:$('#EffectiveDateEdit').val(),
-  signother:$('#significantOther').val(),
-  children:$('#children').val(),
-  WorkingSchedule:$('#workSchedule').val(),
-  SDGOffice:$('#workLocationDD').val(),
-  StaffStatus:$('#staffstatusDD').val(),
-  AssistantId:profile.Id
-});
-// location.reload();
-  })
-  cancelbtn.addEventListener('click',()=>{
-    viewDir.classList.remove("hide");
-    editDir.classList.add("hide");
-    editbtn.classList.remove("hide");
-  })
+const editFunction = async() => {
+  await SPComponentLoader.loadScript("/_layouts/15/init.js").then(() => {});
+  await SPComponentLoader.loadScript("/_layouts/15/1033/sts_strings.js");
+  await SPComponentLoader.loadScript("/_layouts/15/clientforms.js");
+  await SPComponentLoader.loadScript("/_layouts/15/clienttemplates.js");
+  await SPComponentLoader.loadScript("/_layouts/15/clientpeoplepicker.js");
+  await SPComponentLoader.loadScript("/_layouts/15/autofill.js");
+  await SPComponentLoader.loadScript("/_layouts/15/SP.js");
+  await SPComponentLoader.loadScript("/_layouts/15/sp.runtime.js");
+  await SPComponentLoader.loadScript("/_layouts/15/sp.core.js");
+
+  await startIt();
+  const Edit = document.querySelector("#btnEdit");
+  const UserView = document.querySelector(".view-directory");
+  const UserEdit = document.querySelector(".edit-directory");
+
+  if (!UserView.classList.contains("hide")) {
+    UserView.classList.add("hide");
+    UserEdit.classList.remove("hide");
+    Edit.classList.add("hide");
+  } else {
+    UserEdit.classList.remove("hide");
+    Edit.classList.add("hide");
+  }
+
+  let MobileNumberHtmlSec = "";
+  let HomeNumberHtmlSec = "";
+  let EmergencyNumberHtmlSec = "";
   
+
+  let MCCodeArr = []
+  if (
+    SelectedUserProfile[0].PhoneNumber != "" && SelectedUserProfile[0].PhoneNumber != null
+  ) {
+    let AllMnumber = SelectedUserProfile[0].PhoneNumber.split("^");
+    AllMnumber.pop();
+    let AllMobileNumbers = AllMnumber;
+    
+    AllMobileNumbers.forEach((numbers, i) => {
+      // console.log(CCodeHtml)
+      let SplitedMNum = numbers.split(" - ");
+      MCCodeArr.push(SplitedMNum[0])
+
+      if (i == 0) {
+        MobileNumberHtmlSec += `<div class="d-flex mobNumbers"><select class="mobNoCode">${CCodeHtml}</select><input type="number" class="mobNo" id="" value="${SplitedMNum[1]}"><span class="addMobNo add-icon"></div>`;
+      } else {
+        MobileNumberHtmlSec += `<div class="d-flex mobNumbers"><select class="mobNoCode">${CCodeHtml}</select><input type="number" class="mobNo" id="" value="${SplitedMNum[1]}"><span class="removeMobNo remove-icon"></div>`;
+      }
+      $("#mobileNoSec").html(MobileNumberHtmlSec);
+    });
+
+  } else {
+    MobileNumberHtmlSec += `<div class="d-flex mobNumbers"><select class="mobNoCode">${CCodeHtml}</select><input type="number" class="mobNo" id=""><span class="addMobNo add-icon"></div>`;
+    $("#mobileNoSec").html(MobileNumberHtmlSec);
+  }
+  let HCCodeArr=[];
+if(SelectedUserProfile[0].HomeNo != "" && SelectedUserProfile[0].HomeNo != null){
+  let AllHNumber = SelectedUserProfile[0].HomeNo.split("^");
+  AllHNumber.pop();
+  let AllHomeNumber = AllHNumber;
+  AllHomeNumber.forEach((hnumbs,j)=>{
+    let SplitedHNum = hnumbs.split(' - ');
+    HCCodeArr.push(SplitedHNum[0])
+    if(j == 0){
+      HomeNumberHtmlSec +=`<div class="d-flex homeNumbers"><select class="homeNoCode">${CCodeHtml}</select><input type="number" class="home" id="" value="${SplitedHNum[1]}"><span class="addHomeNo add-icon"></div>`
+    }else{
+      HomeNumberHtmlSec +=`<div class="d-flex homeNumbers"><select class="homeNoCode">${CCodeHtml}</select><input type="number" class="home" id="" value="${SplitedHNum[1]}"><span class="removeHomeNo remove-icon"></div>`
+    }
+  });
+  $('#homeNoSec').html(HomeNumberHtmlSec);
+}
+else{
+  HomeNumberHtmlSec +=`<div class="d-flex homeNumbers"><select class="homeNoCode">${CCodeHtml}</select><input type="number" class="home" id=""><span class="addHomeNo add-icon"></div>`
+  $('#homeNoSec').html(HomeNumberHtmlSec);
+}
+
+let ECCodeArr = [];
+if(SelectedUserProfile[0].EmergencyNo != ""  && SelectedUserProfile[0].EmergencyNo != null){
+  let AllENumber = SelectedUserProfile[0].EmergencyNo.split("^");
+  AllENumber.pop();
+  let AllEmergencyNumber = AllENumber;
+  AllEmergencyNumber.forEach((enums,k)=>{
+    let SplitedENum = enums.split(' - ');
+    ECCodeArr.push(SplitedENum[0])
+    if(k==0){
+      EmergencyNumberHtmlSec +=`<div class="d-flex emergencyNumbers"><select class="emergencyNoCode" id="ec${k}">${CCodeHtml}</select><input type="number" class="home" id="" value="${SplitedENum[1]}"><span class="addEmergencyNo add-icon"></div>`
+    }else{
+      EmergencyNumberHtmlSec +=`<div class="d-flex emergencyNumbers"><select class="emergencyNoCode" id="ec${k}">${CCodeHtml}</select><input type="number" class="home" id="" value="${SplitedENum[1]}"><span class="removeEmergencyNo remove-icon"></div>`
+    }
+  })
+  $('#emergencyNoSec').html(EmergencyNumberHtmlSec);
+}else{
+  EmergencyNumberHtmlSec +=`<div class="d-flex emergencyNumbers"><select class="emergencyNoCode">${CCodeHtml}</select><input type="number" class="home" id=""><span class="addEmergencyNo add-icon"></div>`
+  $('#emergencyNoSec').html(EmergencyNumberHtmlSec);
+}
+
+
+if(ECCodeArr.length > 0){
+  $('.emergencyNoCode').each((i,evt)=>{
+    var ecID=ECCodeArr[i]
+    var idx=CCodeArr.indexOf(ecID)
+    evt["selectedIndex"]=idx
+    // $(this).value=ecID
+    // $(this).val(ECCodeArr[i])
+    // $("#"+evt.id).val(ECCodeArr[i])
+  })
+}
+
+
+if(MCCodeArr.length > 0){
+  $('.mobNoCode').each((i,evt)=>{
+    var ecID=MCCodeArr[i]
+    var idx=CCodeArr.indexOf(ecID)
+    evt["selectedIndex"]=idx
+    // $(this).value=ecID
+    // $(this).val(ECCodeArr[i])
+    // $("#"+evt.id).val(ECCodeArr[i])
+  })
+}
+
+
+if(HCCodeArr.length > 0){
+  $('.homeNoCode').each((i,evt)=>{
+    var ecID=HCCodeArr[i]
+    var idx=CCodeArr.indexOf(ecID)
+    evt["selectedIndex"]=idx
+    // $(this).value=ecID
+    // $(this).val(ECCodeArr[i])
+    // $("#"+evt.id).val(ECCodeArr[i])
+  })
+}
+
+  $(".addMobNo").click(() => {
+    multipleMobNo();
+  });
+  $(".addHomeNo").click(() => {
+    multipleHomeNo();
+  });
+  $(".addEmergencyNo").click(() => {
+    multipleEmergencyNo();
+  });
+
+  $("#EditedAddressDetails").html(OfficeAddArr.filter(
+    (add) => SelectedUserProfile[0].Location == add.OfficePlace
+  )[0].OfficeFullAdd);
+  $("#StaffFunctionEdit").val(SelectedUserProfile[0].Title);
+  $("#StaffAffiliatesEdit").val(SelectedUserProfile[0].Affiliation);
+  $("#PAddLineE").val(SelectedUserProfile[0].HAddLine);
+  $("#PAddCityE").val(SelectedUserProfile[0].HAddCity);
+  $("#PAddStateE").val(SelectedUserProfile[0].HAddState);
+  $("#PAddPCodeE").val(SelectedUserProfile[0].HAddPCode);
+  $("#PAddCountryE").val(SelectedUserProfile[0].HAddPCountry);
+  $("#Eshortbio").val(SelectedUserProfile[0].ShortBio);
+  $("#EIndustry").val(SelectedUserProfile[0].Industry);
+  $("#ELanguage").val(SelectedUserProfile[0].Language);
+  $("#ESDGCourse").val(SelectedUserProfile[0].SDGCourse);
+  $("#ESoftwarExp").val(SelectedUserProfile[0].Software);
+  $("#EMembership").val(SelectedUserProfile[0].Membership);
+  $("#ESKnowledge").val(SelectedUserProfile[0].SpecialKnowledge);
+  $("#citizenshipE").val(SelectedUserProfile[0].Citizen);
+  $("#linkedInID").val(SelectedUserProfile[0].LinkedInID.Url);
+  // $("#mobileno").val(SelectedUserProfile[0].PhoneNumber);
+  $("#children").val(SelectedUserProfile[0].Child);
+  $("#significantOther").val(SelectedUserProfile[0].SignOther);
+  $("#USDDailyEdit").val(SelectedUserProfile[0].USDDaily);
+  $("#USDHourlyEdit").val(SelectedUserProfile[0].USDHourly);
+  $("#EURDailyEdit").val(SelectedUserProfile[0].EURDaily);
+  $("#EURHourlyEdit").val(SelectedUserProfile[0].EURHourly);
+  $("#assisstantName").val(SelectedUserProfile[0].Assistant);
+  $("#personalmailID").val(SelectedUserProfile[0].UserPersonalMail);
+  // $("#homeno").val(SelectedUserProfile[0].HomeNo);
+  // $("#emergencyno").val(SelectedUserProfile[0].EmergencyNo);
+  $("#workLocationDD").val(SelectedUserProfile[0].Location);
+  $("#staffstatusDD").val(SelectedUserProfile[0].StaffStatus);
+  $("#othercurrDD").val(SelectedUserProfile[0].OtherCurr);
+  $("#ODailyEdit").val(SelectedUserProfile[0].OtherCurrDaily);
+  $("#OHourlyEdit").val(SelectedUserProfile[0].OtherCurrHourly);
+
+  if(SelectedUserProfile[0].StaffStatus == "Part-time"){
+    $("#workscheduleEdit").html("");
+    $("#workscheduleEdit").html(`<div class="d-flex w-100" id="workscheduleSec"> <label>Work Schedule</label><div class="w-100"><input type="text" id="workScheduleE" value="${SelectedUserProfile[0].WorkSchedule == "" || SelectedUserProfile[0].WorkSchedule == null ? "":SelectedUserProfile[0].WorkSchedule}"></div></div>`)
+  }
+  else{
+    $("#workscheduleEdit").html("");
+    $("#workscheduleEdit").html(`<div class="d-flex w-100 hide" id="workscheduleSec"> <label>Work Schedule</label><div class="w-100"><input type="text" id="workScheduleE" value="${SelectedUserProfile[0].WorkSchedule == "" || SelectedUserProfile[0].WorkSchedule == null ? "":SelectedUserProfile[0].WorkSchedule}"></div></div>`)
+  }
+  
+  var emailAddress =
+    "i:0#.f|membership|" + SelectedUserProfile[0].AssistantMail.toLowerCase();
+  var divID = "peoplepickerText_TopSpan";
+  SPClientPeoplePicker.SPClientPeoplePickerDict[divID].AddUnresolvedUser(
+    {
+      Key: emailAddress,
+      DisplayText: SelectedUserProfile[0].Assistant,
+      Email: SelectedUserProfile[0].AssistantMail.toLowerCase(),
+    },
+    true
+  );
+  // setTimeout(() =>{
+  //   console.log($("#peoplepickerText"));
+  // },10000)
+  
+  // $('.sp-peoplepicker-userDisplayLink').text();
+};
+const editsubmitFunction = async () => {
+  let mobNumUpdate = "";
+  let homeNumUpdate = "";
+  let emergencyNumUpdate = "";
+  let mobNumbers = document.querySelectorAll(".mobNumbers");
+  let homeNumbers = document.querySelectorAll(".homeNumbers");
+  let emergencyNumbers = document.querySelectorAll(".emergencyNumbers");
+  mobNumbers.forEach((nums) => {
+    mobNumUpdate += `${CCodeArr[nums.children[0]["options"].selectedIndex]} - ${
+      nums.children[1]["value"]
+    }^`;
+  });
+  homeNumbers.forEach((nums) => {
+    homeNumUpdate += `${
+      CCodeArr[nums.children[0]["options"].selectedIndex]
+    } - ${nums.children[1]["value"]}^`;
+  });
+  emergencyNumbers.forEach((nums) => {
+    emergencyNumUpdate += `${
+      CCodeArr[nums.children[0]["options"].selectedIndex]
+    } - ${nums.children[1]["value"]}^`;
+  });
+
+  if (bioAttachArr.length > 0) {
+    bioAttachArr.map((filedata) => {
+      sp.web.folders
+        .add(`/sites/StaffDirectory/BiographyDocument/${selectedUsermail}`)
+        .then((data) => {
+          sp.web
+            .getFolderByServerRelativeUrl(data.data.ServerRelativeUrl)
+            .files.add(filedata.name, filedata.content, true);
+        });
+    });
+  }
+  var dispTitle = "APickerField";
+  var pickerDiv = $("[id$='peoplepickerText'][title='" + dispTitle + "']");
+  var peoplePicker = SPClientPeoplePicker.SPClientPeoplePickerDict;
+  var userInfo = peoplePicker.peoplepickerText_TopSpan.GetAllUserInfo();
+  let profileID = 0
+  if(userInfo.length >0){
+    const loginName = userInfo[0].Key.split("|")[2];
+    const profile = await sp.web.siteUsers.getByEmail(loginName).get();
+    profileID = profile.Id
+  }
+  
+
+  const update = await sp.web
+    .getList(listUrl + "StaffDirectory")
+    .items.getById(ItemID)
+    .update({
+      Title: "SDG User Info",
+      PersonalEmail: $("#personalmailID").val(),
+      MobileNo: mobNumUpdate,
+      HomeNo: homeNumUpdate,
+      EmergencyNo: emergencyNumUpdate,
+      HomeAddLine: $("#PAddLineE").val(),
+      HomeAddCity: $("#PAddCityE").val(),
+      HomeAddState: $("#PAddStateE").val(),
+      HomeAddPCode: $("#PAddPCodeE").val(),
+      HomeAddCountry: $("#PAddCountryE").val(),
+      IndustryExp: $("#EIndustry").val(),
+      LanguageExp: $("#ELanguage").val(),
+      SDGCourses: $("#ESDGCourse").val(),
+      SoftwareExp: $("#ESoftwarExp").val(),
+      Membership: $("#EMembership").val(),
+      SpecialKnowledge: $("#ESKnowledge").val(),
+      Citizenship: $("#citizenshipE").val(),
+      ShortBio: $("#Eshortbio").val(),
+      USDDailyRate: $("#USDDailyEdit").val(),
+      USDHourlyRate: $("#USDHourlyEdit").val(),
+      EURDailyRate: $("#EURDailyEdit").val(),
+      EURHourlyRate: $("#EURHourlyEdit").val(),
+      OtherCurrency: $("#othercurrDD").val(),
+      ODailyRate: $("#ODailyEdit").val(),
+      OHourlyRate: $("#OHourlyEdit").val(),
+      EffectiveDate: $("#EffectiveDateEdit").val(),
+      signother: $("#significantOther").val(),
+      children: $("#children").val(),
+      WorkingSchedule: $("#workSchedule").val(),
+      SDGOffice: $("#workLocationDD").val(),
+      StaffStatus: $("#staffstatusDD").val(),
+      LinkedInLink:{
+        "__metadata": { type: "SP.FieldUrlValue" },
+        Description: "LinkedIn",
+        Url: $("#linkedInID").val()
+   
+      },
+      stafffunction:$("#StaffFunctionEdit").val(),
+      SDGAffiliation:$("#StaffAffiliatesEdit").val(),
+      AssistantId: profileID,
+    });
+  location.reload();
+}; 
+const editcancelFunction = () => {
+  const viewDir = document.querySelector(".view-directory");
+  const editDir = document.querySelector(".edit-directory");
+  const editbtn = document.querySelector(".btn-edit");
+  viewDir.classList.remove("hide");
+  editDir.classList.add("hide");
+  editbtn.classList.remove("hide");
+//  $('#peoplepickerText').children().remove();
+// sp-peoplepicker-editorInput
+};
+
+function removeSelectedfile(filename) {
+  for (var i = 0; i < bioAttachArr.length; i++) {
+    if (bioAttachArr[i].name == filename) {
+      ///filesQuantity[i].remove();
+      bioAttachArr.splice(i, 1);
+      break;
+    } 
+  }
+}
+  
+const multipleMobNo = () => {
+  $("#mobileNoSec").append(  
+    `<div class="d-flex mobNumbers"><select class="mobNoCode">${CCodeHtml}</select><input type="number" class="mobNo" id="mobileno1"/><span class="removeMobNo remove-icon"></span></div>`
+  );
+};
+const multipleHomeNo = () => {
+  $("#homeNoSec").append(
+    `<div class="d-flex homeNumbers"><select class="homeNoCode">${CCodeHtml}</select><input type="number" class="mobNo" id="homeno1"/><span class="removeHomeNo remove-icon"></span></div>`
+  );
+};
+const multipleEmergencyNo = () => {
+  $("#emergencyNoSec").append(
+    `<div class="d-flex emergencyNumbers"><select class="emergencyNoCode">${CCodeHtml}</select><input type="number" class="mobNo" id="emergencyno1"/><span class="removeHomeNo remove-icon"></span></div>`
+  );
 };

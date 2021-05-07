@@ -118,11 +118,14 @@
   font-size: 24px;
   color: #343434;
 }
-
+table#SdgofficeinfoTable th {
+  width: auto !important;
+}
 #SdhOutsideTable_info,
 #SdhAffilateTable_info,
 #SdhAllumniTable_info,
-#SdhAllPeopleTable_info {
+#SdhAllPeopleTable_info,
+#SdgBillingrateTable_info {
   display: none;
 }
 #SdhEmployeeDetails table,
@@ -149,9 +152,9 @@ div#SdhEmpTable_info {
   text-align: center !important;
   float: none !important;
   margin-top: 10px;
-  position: absolute;
+  /* position: absolute;
   top: 70vh;
-  left: 35%;
+  left: 35%;*/
 }
 .dataTables_wrapper .dataTables_filter input {
   border: 1px solid black;
@@ -202,10 +205,15 @@ a.paginate_button.current {
 #SdgofficeinfoTable th:nth-child(3),
 #SdgofficeinfoTable td:nth-child(3),
 #SdgofficeinfoTable th:nth-child(6),
-#SdgofficeinfoTable td:nth-child(6) {
+#SdgofficeinfoTable td:nth-child(6),
+#SdgBillingrateTable th:nth-child(2),
+#SdgBillingrateTable td:nth-child(2),
+#SdgBillingrateTable th:nth-child(3),
+#SdgBillingrateTable td:nth-child(3),
+#SdgBillingrateTable th:nth-child(6),
+#SdgBillingrateTable td:nth-child(6) {
   display: table-cell;
 }
-
 tr.dtrg-group.dtrg-start td {
   background: #bababa;
   width: 200px !important;
@@ -410,12 +418,18 @@ span.display-picture {
   background-size: contain;
   background-repeat: no-repeat;
 }
+.new-doc {
+  background: url(../img/DocImage.png);
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
 .tab-header-section {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.edit-btn {
+/* .edit-btn {
   width: 30px;
   height: 30px;
   background: url(../img/EditPencil.png);
@@ -423,6 +437,13 @@ span.display-picture {
   background-size: contain;
   background-repeat: no-repeat;
   cursor: pointer;
+} */
+.btn-edit,
+.btn-edit:hover {
+  background: #d62d01;
+  border: 0 !important;
+  border: 1px solid #d62d02;
+  color: #fff;
 }
 .edit-directory textarea {
   width: 100%;
@@ -478,11 +499,13 @@ span.display-picture {
   border-radius: 0;
   border: 1px solid grey;
   font-weight: bold;
+  outline: 0;
 }
 .btn-submit,
 .btn-submit:hover {
   color: #fff;
   background: #d62d02;
+  border: 1px solid #d62d02;
   outline: 0;
 }
 div#BillingRateDetails label {
@@ -505,7 +528,7 @@ ul#peoplepickerText_TopSpan_AutoFillDiv_MenuList {
 input#peoplepickerText_TopSpan_EditorInput {
   max-width: 100% !important;
 }
-/* Ahmed Code */
+
 .quantityFilesContainer {
   position: absolute;
   left: 0;
@@ -547,4 +570,84 @@ input#peoplepickerText_TopSpan_EditorInput {
 label.custom-file-label {
   padding-top: 0;
 }
-/* Ahmed Code */
+
+.clsRemove,
+.clsothersRemove,
+.clsfileremove {
+  color: #ff6347;
+  display: inline-block;
+  font-weight: 400;
+  font-size: 14px;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.quantityFiles {
+  display: inline;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.quantityFiles .upload-filename {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+span.ms-formvalidation.sp-peoplepicker-errorMsg span[role="alert"] {
+  color: tomato !important;
+}
+.add-icon {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  background: url(../img/AddIcon.png);
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin-left: 16px;
+}
+.remove-icon {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  background: url(../img/RemoveIcon.png);
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin-left: 16px;
+}
+.homeNoCode,
+.mobNoCode,
+.emergencyNoCode {
+  width: 72px !important;
+  margin-right: 16px;
+}
+.other-exp p {
+  word-break: break-all;
+}
+.Location-Addresses.d-flex {
+  align-items: center;
+}
+.align-item-center {
+  align-items: center;
+}
+.ms-core-menu-sublabel.ms-metadata {
+  display: none;
+}
+ul#peoplepickerText_TopSpan_AutoFillDiv_MenuList {
+  background: #f9bdbd;
+}
+hr.ms-core-menu-separatorHr {
+  display: none;
+}
+li.ms-core-menu-footer {
+  padding: 20px 6px 6px;
+}
+.sp-peoplepicker-delImage,
+.sp-peoplepicker-delImage:hover {
+  margin-left: 8px;
+  color: tomato;
+}
