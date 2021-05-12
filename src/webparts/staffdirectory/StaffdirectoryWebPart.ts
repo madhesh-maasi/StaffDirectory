@@ -77,6 +77,8 @@ let selectedUsermail = "";
 let CCodeHtml = "";
 let CCodeArr = [];
 let OfficeAddArr = [];
+let AvailEditFlag = false;
+let AvailEditID = 0;
 export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffdirectoryWebPartProps> {
   public onInit(): Promise<void> {
     return super.onInit().then((_) => {
@@ -196,16 +198,16 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
        </div>
      </div>
      <div class="card">
-       <div class="card-header nav-items" id="headingSeven">
+       <div class="card-header nav-items StaffAvailability" id="headingSeven">
            <div data-toggle="collapse" class="clsToggleCollapse" data-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven"><span class="nav-icon staff-avail"></span>Staff Availability</div>
        </div>
        <div id="collapseSeven" class="clsCollapse collapse" aria-labelledby="headingSeven" data-parent="#accordionExample">
          <div class="card-body">
          <div class="filter-section">
-         <ul>
-         <li><a href="#">By Last Name</a></li>
-         <li><a href="#">By First Name</a></li>
-         </ul>
+         <!--<ul>
+         <li><a href="#">By Office</a></li>
+         <li><a href="#">By Title</a></li>
+         </ul>-->
          </div>
          </div>
        </div>
@@ -355,6 +357,15 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
      </tbody>
      </table>
      </div>
+     <div class="StaffAvailabilityTable oDataTable hide">
+     <table id="StaffAvailabilityTable">
+     <thead>
+     <tr><th>User</th><th>Location</th><th>Staff Affiliates</th><th>Availability</th></tr>
+     </thead>
+     <tbody id="StaffAvailabilityTbody"></tbody>
+     </table>
+     </div>
+
      </div>
      
      <div class="user-profile-page hide">
@@ -385,21 +396,18 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
      <label>Staff Function :</label> 
      <div class="title-font" id="user-staff-function"></div>
      </div>
-     <div class="user-info">
-     <label>Office:</label>
-     <div class="title-font" id="user-office"></div>
-     </div>
+     
      </div>
      <div class="profile-details-right">
      <div class="user-info"> 
      <label>Mobile:</label>
      <div class="title-font" id="user-phone"></div>
      </div>
-     <div class="user-info">   
-     <label>Email:</label> 
-     <div class="title-font" ><div id="user-mail"></div><div id="personal-mail"></div></div> 
-     </div>
+     
      <div class="user-info hide"><label>Personal Mail :</label><div class="title-font" id="userpersonalmail"></div></div> 
+     <div class="user-info">
+      <div class="d-flex align-item-center"><label>LinkedIn :</label><div class="" id="linkedinIDview"></div></div>
+      </div>
      </div> 
      </div>
      </div>
@@ -408,43 +416,41 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
      <div class="tab-header-section">  
      <ul class="nav nav-tabs">
        <li class="active"><a data-toggle="tab" href="#home">Directory Information</a></li>
-       <li><a data-toggle="tab" href="#menu1">Availability</a></li>
+       <li id="availabilityTab"><a data-toggle="tab" href="#menu1">Availability</a></li>
      </ul>
-     <div  ><button class="btn btn-edit" id="btnEdit">Edit</button></div>
+     
      </div>
      <div>
      <div class="tab-content">
     <div id="home" class="tab-pane fade in active">
+    <div class="text-right" ><button class="btn btn-edit" id="btnEdit">Edit</button></div> 
       <div id="DirectoryInformation" class="d-flex view-directory">
       <div class="DInfo-left col-6">
       <div class="work-address">
       <h4>Work Address</h4>
       <div class="d-flex"><label>Location :</label><div class="address-details lblRight" id="WLoctionDetails"></div></div>
-      <div class="d-flex align-item-center"><label>Location Address:</label><div class="address-details lblRight" id="WAddressDetails"></div>
+      <div class="d-flex align-item-center"><label>Address:</label><div class="address-details lblRight" id="WAddressDetails"></div>
       </div> 
       </div>
-      <div class="social-info">
-      <div class="d-flex align-item-center"><label>LinkedIn :</label><div class="" id="linkedinIDview"></div></div>
-      </div>
+      
       <div class="Assistant-view" id="viewAssistant">
       
       </div>
       <div class="personal-info">
       <h4>Personal Info</h4>
       <div class="address-details" id="PersonaInfo"> 
-      <div><label>Address Line:</label><label id="PAddLine" class="lblRight"></label></div>
-      <div><label>City:</label><label id="PAddCity" class="lblRight"></label></div>
-      <div><label>State:</label><label id="PAddState" class="lblRight"></label></div>
-      <div><label>Postal Code :</label><label id="PAddPCode" class="lblRight"></label></div> 
-      <div><label>Country:</label><label id="PAddPCountry" class="lblRight"></label></div>
-      <div><label>Significant Other :</label><label id="PSignOther" class="lblRight"></label></div>
-      <div><label>Children :</label><label id="PChildren" class="lblRight"></label></div>
+      <div class="d-flex"><label>Address Line:</label><div id="PAddLine" class="lblRight"></div></div>
+      <div class="d-flex"><label>City:</label><div id="PAddCity" class="lblRight"></div></div>
+      <div class="d-flex"><label>State:</label><div id="PAddState" class="lblRight"></div></div>
+      <div class="d-flex"><label>Postal Code :</label><div id="PAddPCode" class="lblRight"></div></div> 
+      <div class="d-flex"><label>Country:</label><div id="PAddPCountry" class="lblRight"></div></div>
+      <div class="d-flex"><label>Significant Other :</label><div id="PSignOther" class="lblRight"></div></div>
+      <div class="d-flex"><label>Children :</label><div id="PChildren" class="lblRight"></div></div>
       </div>
       </div>
       
       
-      </div>
-      <div class="DInfo-right col-6">
+      
       <div class="StaffStatus">
       <h4>Staff Status</h4>
       <p class="lblRight" id="staffStatus"></p> 
@@ -459,6 +465,8 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       <div><label>Nationality :</label><label id="citizenship" class="lblRight"></label></div>
       </div>
       </div>
+      </div>
+      <div class="DInfo-right col-6">
       <div class="user-billing-rates">
       <h4>Billing Rates</h4>
       <div id="BillingRateDetails">
@@ -567,9 +575,7 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       </div>
       </div>
 
-      </div> 
-
-      <div class="DInfo-right col-6">
+      
       <div class="StaffStatus">
       <h4>Staff Status</h4> 
       <div class="d-flex w-100"> 
@@ -586,6 +592,9 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       <div class="d-flex w-100"><label>Nationality:</label><div class="w-100"><input type="text" id="citizenshipE"></div></div>
       </div>
       </div>
+      </div> 
+
+      <div class="DInfo-right col-6">
       <div class="user-billing-rates">
       <h4>Billing Rates</h4>
 
@@ -651,10 +660,75 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       <button class="btn btn-cancel" id="BtnCancel">Cancel</button>
       <button class="btn btn-submit" id="BtnSubmit">Submit</button>
       </div>
-      </div>
+      </div> 
     </div>
     <div id="menu1" class="tab-pane fade">
-      <h3>Availabilty Comes Here</h3>
+      <div class="view-availability">
+      <div class="availability-btn-section">
+      <button class="btn btn-add-project"  data-toggle="modal" data-target="#addprojectmodal">Add Project</button>
+      </div>
+      <div class="availability-table-section">
+      <table id="UserAvailabilityTable">
+      <thead>
+      <tr>
+      <th>Project Name</th>
+      <th>Start Date</th>
+      <th>End Date</th>
+      <th>Percentage</th>
+      <th>Comments</th>
+      <th>Action</th>
+      </tr>
+      </thead>
+      <tbody id="UserAvailabilityTbody">
+      </tbody >
+      </table>
+      </div>
+      </div>
+
+      
+      <div class="modal fade" id="addprojectmodal" tabindex="-1" role="dialog" aria-labelledby="addprojectmodalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add Project</h5>
+        
+      </div>  
+      <div class="modal-body add-project-modal">
+      <div class="d-flex">
+      <div class="d-flex col-6"><label>Project Type</label><div class="w-100"><select id="projecttypeDD"><option value="sample">Sample</option></select></div></div>
+      <div class="d-flex col-6"><label>Project Name</label><div class="w-100"><input type="text" id="projectName" /></div></div>
+      </div>
+      <div class="d-flex">
+      <div class="d-flex col-6"><label>Start Date</label><div class="w-100"><input type="date" id="projectStartDate" /></div></div>
+        <div class="d-flex col-6"><label>End Date</label><div class="w-100"><input type="date" id="projectEndDate" /></div></div>
+      </div>   
+        <div class="d-flex">
+        <div class="d-flex col-6"><div id="percentageDiv" class="d-flex w-100"><label>Percent on Project</label><div class="w-100"><input type="text" id="projectPercent" /></div></div></div>
+        
+        </div>
+        
+        <div class="d-flex">
+        <div class="d-flex col-6"><label>Client</label><div class="w-100"><input type="text" id="client" /></div></div>
+        <div class="d-flex col-6"><label>Project Code</label><div class="w-100"><input type="text" id="projectCode" /></div></div>
+        </div>
+        
+        <div class="d-flex">
+        <div class="d-flex col-6"><label>Practice Area</label><div class="w-100"><select id="practiceAreaDD"><option value="sample">Sample</option></select></div></div>
+        <div class="d-flex col-6"><label>Project Location</label><div class="w-100"><input type="text" id="ProjectLocation" /></div></div>
+        </div>
+        <div class="d-flex">
+        <div class="d-flex col-6"><label>Availability Notes</label><div class="w-100"><textarea id="projectAvailNotes" ></textarea></div></div>
+        <div class="d-flex col-6"><label>Comments</label><div class="w-100"><textarea id="Projectcomments"></textarea></div></div></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" data-dismiss="modal" id="closeModal">Close</button>
+        <button type="button" class="btn btn-submit" id="add-availability">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
     </div>
     </div>
     </div>
@@ -828,15 +902,55 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
   }
     // Employee Filters
     $(".sdhLocgrouping").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+      }
+      if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+      }
       SdhEmpTableRowGrouping(4, "SdhEmpTable", bindEmpTable);
     });
     $(".sdhTitlgrouping").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+      }
+      if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+      }
       SdhEmpTableRowGrouping(6, "SdhEmpTable", bindEmpTable);
     });
     $(".sdhAssistantgrouping").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+      }
+      if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+      }
       SdhEmpTableRowGrouping(7, "SdhEmpTable", bindEmpTable);
     });
     $(".sdhfirstnamesort").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+      }
+      if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+      }
       var options = {
         destroy: true,
         order: [[1, "asc"]],
@@ -844,6 +958,16 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       bindEmpTable(options);
     });
     $(".sdhlastnamesort").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+      }
+      if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+      }
       var options = {
         destroy: true,
         order: [[2, "asc"]],
@@ -852,6 +976,16 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
     });
     //OutSideConsultant
     $(".OutConslastnamesort").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+      }
+      if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+      }
       var options = {
         destroy: true,
         order: [[2, "asc"]],
@@ -859,6 +993,16 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       bindOutTable(options);
     });
     $(".OutConsFirstnamesort").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+      }
+      if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+      }
       var options = {
         destroy: true,
         order: [[1, "asc"]],
@@ -866,13 +1010,43 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       bindOutTable(options);
     });
     $(".OutConsLocgrouping").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+        }
+        if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+        }
       SdhEmpTableRowGrouping(4, "SdhOutsideTable", bindOutTable);
     });
     $(".OutConsStaffgrouping").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+        }
+        if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+        }
       SdhEmpTableRowGrouping(6, "SdhOutsideTable", bindOutTable);
     });
     // Affliates
     $(".Afflastnamesort").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+        }
+        if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+        }
       var options = {
         destroy: true,
         order: [[2, "asc"]],
@@ -880,6 +1054,16 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       bindAffTable(options);
     });
     $(".AffFirstnamesort").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+        }
+        if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+        }
       var options = {
         destroy: true,
         order: [[1, "asc"]],
@@ -888,6 +1072,16 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
     });
     // Allumni
     $(".SDHAlumniLastName").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+        }
+        if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+        }
       var options = {
         destroy: true,
         order: [[1, "asc"]],
@@ -895,6 +1089,16 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       bindAlumTable(options);
     });
     $(".SDHAlumniFirstName").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+        }
+        if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+        }
       var options = {
         destroy: true,
         order: [[2, "asc"]],
@@ -902,10 +1106,30 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       bindAlumTable(options);
     });
     $(".SDHAlumniOffice").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+        }
+        if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+        }
       SdhEmpTableRowGrouping(4, "SdhAllumniTable", bindAlumTable);
     });
     // All Users
     $(".SDHShowAllLastName").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+        }
+        if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+        }
       var options = {
         destroy: true,
         order: [[2, "asc"]],
@@ -913,6 +1137,16 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       bindAllDetailTable(options);
     });
     $(".SDHShowAllFirstName").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+        }
+        if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+        }
       var options = {
         destroy: true,
         order: [[1, "asc"]],
@@ -927,10 +1161,17 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
     $("#BtnSubmit").click(() => {
       editsubmitFunction();
     });
-    $("#BtnCancel").click(() => {
+    $("#BtnCancel").click(() => {  
       editcancelFunction();
     });
-
+    $("#add-availability").click(()=>{
+      if(AvailEditFlag){
+        availUpdateFunc();
+      }else{
+        availSubmitFunc();
+      }
+      
+    })
     $(document).on("change", "#BioAttachEdit", function () {
       if ($(this)[0].files.length > 0) {
         for (let index = 0; index < $(this)[0].files.length; index++) {
@@ -965,6 +1206,11 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
     $(document).on("click", ".remove-icon", function () {
       $(this).parent().remove();
     });
+    $(document).on("click",".action-delete",(e)=>{
+      let AItemID = e.currentTarget.getAttribute("data-id");
+      removeAvailProject(parseInt(AItemID));
+      e.currentTarget.parentElement.parentElement.parentElement.remove()
+    })
 
     $(document).on("change", "#staffstatusDD", function(){
       if ($("#staffstatusDD").val() == "Part-time") {
@@ -980,8 +1226,47 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
         (add) => $("#workLocationDD").val() == add.OfficePlace
       )[0].OfficeFullAdd);
     })
-
+    $(document).on("change","#projecttypeDD",()=>{
+      if($("#projecttypeDD").val() == "Billable/Client" || $("#projecttypeDD").val() == "Marketing"){
+       
+          $("#percentageDiv").removeClass("hide")
+        
+      }else{
+        $("#projectPercent").val("");
+          $("#percentageDiv").addClass("hide")
+       
+      }
+    })
+    $(document).on("click","#editProjectAvailability",(e)=>{
+      AvailEditFlag = true;
+      let AEditItemID = e.currentTarget.getAttribute("data-id");
+      AvailEditID = AEditItemID;
+      fillEditSection(AvailEditID);
+    });
+    $(document).on("click","#closeModal",()=>{
+      AvailEditFlag = false;
+      AvailEditID = 0;
+      $("#projectName").val("")
+      $("#projectStartDate").val("")
+      $("#projectEndDate").val("")
+      $("#projectPercent").val("")
+      $("#practiceAreaDD").val("")
+      $("#client").val("")
+      $("#projectCode").val("")
+      $("#ProjectLocation").val("")
+      $("#projectAvailNotes").val("")
+      $("#Projectcomments").val("")
+    })
     
+    $(document).on("click",".usernametag",()=>{
+      if(SelectedUserProfile[0].Affiliation != "Employee" && SelectedUserProfile[0].Affiliation != "Outside Consultant"){
+        $("#menu1").addClass("hide");
+        $("#availabilityTab").addClass("hide");
+      }else{
+        $("#menu1").removeClass("hide");
+        $("#availabilityTab").removeClass("hide");
+      }
+    })
   }
 
   protected get dataVersion(): Version {
@@ -1016,11 +1301,13 @@ const onLoadData = async () => {
   let othercurrDD = document.querySelector("#othercurrDD");
   let StaffFunctionDD = document.querySelector("#StaffFunctionEdit");
   let StaffAffiliatesDD = document.querySelector("#StaffAffiliatesEdit");
+  let AvailProjectTypeDD = document.querySelector("#projecttypeDD");
   let LocOptionHtml = "";
   let staffOptionHtml = "";
   let otherCurrHtml = "";
   let StaffFunHtml = "";
   let StaffAffHtml = "";
+  let AvailProjTypeHtml = "";
   // let CCodeHtml = "";
   let listLocation = await sp.web
     .getList(listUrl + "StaffDirectory")
@@ -1046,7 +1333,15 @@ const onLoadData = async () => {
   .getList(listUrl + "StaffDirectory")
   .fields.filter("EntityPropertyName eq 'SDGAffiliation'")
   .get();
-  
+  let AvailProjectType = await sp.web
+  .getList(listUrl + "SDGAvailability")
+  .fields.filter("EntityPropertyName eq 'ProjectType'")
+  .get();
+
+  AvailProjectType[0]["Choices"].forEach((type) => {
+    AvailProjTypeHtml += `<option value="${type}">${type}</option>`;
+  });
+
 
   listLocation[0]["Choices"].forEach((li) => {
     LocOptionHtml += `<option value="${li}">${li}</option>`;
@@ -1067,7 +1362,7 @@ const onLoadData = async () => {
   listStaffAff[0]["Choices"].forEach((Aff) => {
     StaffAffHtml += `<option value="${Aff}">${Aff}</option>`;
   });
-
+  AvailProjectTypeDD.innerHTML = AvailProjTypeHtml;
   LocationDD.innerHTML = LocOptionHtml;
   StaffStatusDD.innerHTML = staffOptionHtml;
   othercurrDD.innerHTML = otherCurrHtml;
@@ -1093,31 +1388,31 @@ const onLoadData = async () => {
       console.log(listitem);
       listitem.forEach((li) => {
         UserDetails.push({
-          Name: li.User.Title,
-          FirstName: li.User.FirstName,
-          LastName: li.User.LastName,
-          Usermail: li.User.EMail,
-          UserPersonalMail: li.PersonalEmail,
-          JobTitle: li.User.JobTitle,
-          Assistant: li.Assistant.Title,
-          AssistantMail: li.Assistant.EMail,
-          PhoneNumber: li.MobileNo != null ? li.MobileNo : "N/A",
-          Location: li.SDGOffice,
-          Title: li.stafffunction != null ? li.stafffunction : "N/A",
-          Affiliation: li.SDGAffiliation,
-          HAddLine: li.HomeAddLine,
-          HAddCity: li.HomeAddCity,
-          HAddState: li.HomeAddState,
-          HAddPCode: li.HomeAddPCode,
-          HAddPCountry: li.HomeAddCountry,
-          ShortBio: li.ShortBio,
-          Citizen: li.Citizenship,
-          Industry: li.IndustryExp,
-          Language: li.LanguageExp,
-          SDGCourse: li.SDGCourses,
-          Software: li.SoftwareExp,
-          Membership: li.Membership,
-          SpecialKnowledge: li.SpecialKnowledge,
+          Name: li.User.Title != null ? li.User.Title : "Not Available",
+          FirstName: li.User.FirstName != null ? li.User.FirstName : "Not Available",
+          LastName: li.User.LastName != null ? li.User.LastName  : "Not Available",
+          Usermail: li.User.EMail != null ? li.User.EMail : "Not Available",
+          UserPersonalMail: li.PersonalEmail != null ? li.PersonalEmail : "Not Available",
+          JobTitle: li.User.JobTitle != null ? li.User.JobTitle : "Not Available",
+          Assistant: li.Assistant.Title != null ? li.Assistant.Title : "Not Available",
+          AssistantMail: li.Assistant.EMail != null ? li.Assistant.EMail : "Not Available",
+          PhoneNumber: li.MobileNo != null ? li.MobileNo : "Not Available",
+          Location: li.SDGOffice != null ? li.SDGOffice : "Not Available",
+          Title: li.stafffunction != null ? li.stafffunction : "Not Available",
+          Affiliation: li.SDGAffiliation != null ? li.SDGAffiliation : "Not Available",
+          HAddLine: li.HomeAddLine != null ? li.HomeAddLine : "Not Available",
+          HAddCity: li.HomeAddCity != null ? li.HomeAddCity : "Not Available",
+          HAddState: li.HomeAddState != null ? li.HomeAddState : "Not Available",
+          HAddPCode: li.HomeAddPCode != null ? li.HomeAddPCode : "Not Available",
+          HAddPCountry: li.HomeAddCountry != null ? li.HomeAddCountry : "Not Available",
+          ShortBio: li.ShortBio != null ? li.ShortBio : "Not Available",
+          Citizen: li.Citizenship != null ? li.Citizenship : "Not Available",
+          Industry: li.IndustryExp != null ? li.IndustryExp : "Not Available",
+          Language: li.LanguageExp != null ?li.LanguageExp : "Not Available",
+          SDGCourse: li.SDGCourses != null ? li.SDGCourses : "Not Available",
+          Software: li.SoftwareExp != null ? li.SoftwareExp : "Not Available",
+          Membership: li.Membership != null ? li.Membership : "Not Available",
+          SpecialKnowledge: li.SpecialKnowledge != null ? li.SpecialKnowledge : "Not Available",
           USDDaily: li.USDDailyRate,
           USDHourly: li.USDHourlyRate,
           EURDaily: li.EURDailyRate,
@@ -1125,16 +1420,16 @@ const onLoadData = async () => {
           OtherCurr: li.OtherCurrency,
           OtherCurrDaily: li.ODailyRate,
           OtherCurrHourly: li.OHourlyRate,
-          EffectiveDate: li.EffectiveDate,
-          StaffStatus: li.StaffStatus,
-          WorkSchedule: li.WorkingSchedule,
-          ItemID: li.ID,
-          LinkedInID: li.LinkedInLink,
-          SignOther: li.signother,
-          Child: li.children,
-          HomeNo: li.HomeNo,
-          EmergencyNo: li.EmergencyNo,
-          Test:li.TestUrl
+          EffectiveDate: li.EffectiveDate != null ? li.EffectiveDate : "Not Available",
+          StaffStatus: li.StaffStatus != null ? li.StaffStatus : "Not Available",
+          WorkSchedule: li.WorkingSchedule != null ? li.WorkingSchedule : "Not Available",
+          ItemID: li.ID != null ? li.ID : "Not Available",
+          LinkedInID: li.LinkedInLink != null ? li.LinkedInLink : "Not Available",
+          SignOther: li.signother != null ? li.signother : "Not Available",
+          Child: li.children != null ? li.children : "Not Available",
+          HomeNo: li.HomeNo != null ? li.HomeNo : "Not Available",
+          EmergencyNo: li.EmergencyNo != null ? li.EmergencyNo : "Not Available",
+          
         });
       });
       getTableData();
@@ -1172,7 +1467,7 @@ const ActiveSwitch = () => {
           ? $(".sdgofficeinfotable").removeClass("hide")
           : selectedOption["classList"].contains("SDGBillingRate")
           ? $(".sdgbillingrateTable").removeClass("hide")
-          : "";
+          :  selectedOption["classList"].contains("StaffAvailability")?$(".StaffAvailabilityTable").removeClass("hide"):"";
       });
     });
   });
@@ -1186,7 +1481,7 @@ async function getTableData() {
   let AllDetailsTable = "";
   let BillingRateTable = "";
   let OfficeDetails = await sp.web
-    .getList(listUrl + "SDGOfficeInfo")
+    .getList(listUrl + "SDGOfficeInfo") 
     .items.get();
   // console.log(OfficeDetails);
   OfficeDetails.forEach((oDetail) => {
@@ -1196,85 +1491,236 @@ async function getTableData() {
       oDetail.Address != "null" ? oDetail.Address.split("^").join("</br>") : ""
     }</td></tr>`;
   });
+  let AvailHtml = "";
+let AllAvailabilityDetails = await sp.web
+.getList(listUrl + "SDGAvailability")
+.items
+.get();
+
+let AvalabilityUsers = AllAvailabilityDetails.map((users)=>{
+  return (
+    users.UserName
+  );
+});
+
+AvalabilityUsers = AvalabilityUsers.filter((item,i)=>AvalabilityUsers.indexOf(item)==i);
+// console.log(AvalabilityUsers);
+let UserWithPercentage = []
+AvalabilityUsers.forEach((users)=>{
+
+  let userPercentage = 0;
+  let UserLocation = "";
+  let UserAffiliation = "";
+  AllAvailabilityDetails.forEach((all)=>{
+    all.UserName == users?userPercentage += parseInt(all.Percentage):userPercentage += 0;
+
+  })
+  UserDetails.forEach((UDetails)=>{
+    UDetails.Name == users?UserLocation = UDetails.Location:"";
+    UDetails.Name == users?UserAffiliation = UDetails.Affiliation:"";
+  })
+  UserWithPercentage.push({UserName:users,Percentage:userPercentage,Location:UserLocation,UserAff:UserAffiliation});
+  // console.log({users:users,userPercentage:userPercentage,Location:UserLocation});
+  
+});
+
+
+UserWithPercentage.forEach((avli)=>{
+  AvailHtml+=`<tr><td>${avli.UserName}</td>
+  <td>${avli.Location}</td>
+  <td>${avli.UserAff}</td>
+  <td>
+  <div class="d-flex align-item-center">  
+  <div class="availability-progress-bar" style="border: 1px solid  ${avli.Percentage >= 50? "#f01616":"#45b345"}">
+  <div class="progress-value" style="height:100%;width:${100 - avli.Percentage}%; background: ${avli.Percentage >= 50? "#f01616":"#45b345"}"></div>
+  </div>
+  <span style="color:${avli.Percentage >= 50? "#f01616":"#45b345"}">${100 - avli.Percentage}%</span></div>
+  </td></tr>`
+})
+$('#StaffAvailabilityTbody').html(AvailHtml)
 
   UserDetails.forEach((details) => {
     // console.log(details.PhoneNumber.split("^"));
-    let ViewPhoneNumber = details.PhoneNumber.split("^");
+    let ViewPhoneNumber = details.PhoneNumber.split("^"); 
     ViewPhoneNumber.pop();
-
-    if (details.Affiliation == "Employee") {
-      EmpTable += `<tr><td class="usernametag">${details.Name}</td><td>${
+   
+    if (details.Affiliation == "Employee") {       
+      EmpTable += `<tr><td class="user-details-td"><div  class="usernametag">${details.Name}</div><div class="HUserDetails">
+      <img src="" class="userimg"/>
+      <div class="user-name">${details.Name}</div>
+      <div class="user-JTitle">${details.JobTitle}</div>
+      <div class="user-location">${details.Location}</div>
+      <div class="user-avail-title">Availability</div> 
+      </div></td><td>${   
         details.FirstName
       }</td><td>${details.LastName}</td><td>${ViewPhoneNumber.join(
         ","
-      )}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${
-        details.Title
-      }</td><td>${details.Assistant}</td></tr>`;
+        )}</td><td>${
+          details.Location == "" ||details.Location == null 
+          ? "Not Available"
+          : `${details.Location}`
+          }</td><td>${
+          details.JobTitle == "" ||details.JobTitle == null 
+          ? "Not Available"
+          : `${details.JobTitle}`
+          }</td><td>${
+          details.Title
+        }</td><td>${
+          details.Assistant == "" ||details.Assistant == null 
+          ? "Not Available"
+          : `${details.Assistant}`
+        }</td></tr>`;
     }
     if (details.Affiliation == "Outside Consultant") {
-      OutTable += `<tr><td class="usernametag">${details.Name}</td><td>${
+      OutTable += `<tr><td class="user-details-td"><div  class="usernametag">${details.Name}</div><div class="HUserDetails">
+      <img src="" class="userimg"/>
+      <div class="user-name">${details.Name}</div>
+      <div class="user-JTitle">${details.JobTitle}</div>
+      <div class="user-location">${details.Location}</div>
+      <div class="user-avail-title">Availability</div> 
+      </div></td><td>${
         details.FirstName
       }</td><td>${details.LastName}</td><td>${ViewPhoneNumber.join(
         ","
-      )}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${
-        details.Title
-      }</td><td>${details.Assistant}</td></tr>`;
+        )}</td><td>${
+          details.Location == "" ||details.Location == null 
+          ? "Not Available"
+          : `${details.Location}`
+          }</td><td>${
+          details.JobTitle == "" ||details.JobTitle == null 
+          ? "Not Available"
+          : `${details.JobTitle}`
+          }</td><td>${
+          details.Title == "" ||details.Title == null 
+          ? "Not Available"
+          : `${details.Title}`
+          }</td><td>${
+          details.Assistant == "" ||details.Assistant == null 
+          ? "Not Available"
+          : `${details.Assistant}`
+        }</td></tr>`;
     }
     if (details.Affiliation == "Affiliate") {
-      AffTable += `<tr><td class="usernametag">${details.Name}</td><td>${
+      AffTable += `<tr><td class="user-details-td"><div  class="usernametag">${details.Name}</div><div class="HUserDetails">
+      <img src="" class="userimg"/>
+      <div class="user-name">${details.Name}</div>
+      <div class="user-JTitle">${details.JobTitle}</div>
+      <div class="user-location">${details.Location}</div>
+      <div class="user-avail-title">Availability</div> 
+      </div></td><td>${
         details.FirstName
       }</td><td>${details.LastName}</td><td>${ViewPhoneNumber.join(
         ","
-      )}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${
-        details.Title
-      }</td><td>${details.Assistant}</td></tr>`;
+        )}</td><td>${
+          details.Location == "" ||details.Location == null 
+          ? "Not Available"
+          : `${details.Location}`
+          }</td><td>${
+          details.JobTitle == "" ||details.JobTitle == null 
+          ? "Not Available"
+          : `${details.JobTitle}`
+          }</td><td>${
+          details.Title == "" ||details.Title == null 
+          ? "Not Available"
+          : `${details.Title}`
+          }</td><td>${
+          details.Assistant == "" ||details.Assistant == null 
+          ? "Not Available"
+          : `${details.Assistant}`
+        }</td></tr>`;
     }
     if (details.Affiliation == "Alumni") {
-      AlumTable += `<tr><td class="usernametag">${details.Name}</td><td>${
+      AlumTable += `<tr><td class="user-details-td"><div  class="usernametag">${details.Name}</div><div class="HUserDetails">
+      <img src="" class="userimg"/>
+      <div class="user-name">${details.Name}</div>
+      <div class="user-JTitle">${details.JobTitle}</div>
+      <div class="user-location">${details.Location}</div>
+      <div class="user-avail-title">Availability</div> 
+      </div></td><td>${
         details.FirstName
       }</td><td>${details.LastName}</td><td>${ViewPhoneNumber.join(
         ","
-      )}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${
-        details.Title
-      }</td><td>${details.Assistant}</td></tr>`;
+        )}</td><td>${
+          details.Location == "" ||details.Location == null 
+          ? "Not Available"
+          : `${details.Location}`
+          }</td><td>${
+          details.JobTitle == "" ||details.JobTitle == null 
+          ? "Not Available"
+          : `${details.JobTitle}`
+          }</td><td>${
+          details.Title == "" ||details.Title == null 
+          ? "Not Available"
+          : `${details.Title}`
+          }</td><td>${
+          details.Assistant == "" ||details.Assistant == null 
+          ? "Not Available"
+          : `${details.Assistant}`
+        }</td></tr>`;
     }
-    AllDetailsTable += `<tr><td class="usernametag">${details.Name}</td><td>${
+    AllDetailsTable += `<tr><td class="user-details-td"><div  class="usernametag">${details.Name}</div><div class="HUserDetails">
+    <img src="" class="userimg"/>
+    <div class="user-name">${details.Name}</div>
+    <div class="user-JTitle">${details.JobTitle}</div>
+    <div class="user-location">${details.Location}</div>
+    <div class="user-avail-title">Availability</div> 
+    </div></td><td>${
       details.FirstName
     }</td><td>${details.LastName}</td><td>${ViewPhoneNumber.join(
       ","
-    )}</td><td>${details.Location}</td><td>${details.JobTitle}</td><td>${
-      details.Title
-    }</td><td>${details.Assistant}</td></tr>`;
+      )}</td><td>${
+        details.Location == "" ||details.Location == null 
+        ? "Not Available"
+        : `${details.Location}`
+        }</td><td>${
+        details.JobTitle == "" ||details.JobTitle == null 
+        ? "Not Available"
+        : `${details.JobTitle}`
+        }</td><td>${
+        details.Title == "" ||details.Title == null 
+        ? "Not Available"
+        : `${details.Title}`
+        }</td><td>${
+          details.Assistant == "" ||details.Assistant == null 
+          ? "Not Available"
+          : `${details.Assistant}`
+        }</td></tr>`;
     BillingRateTable += `<tr><td class="usernametag">${details.Name}</td><td>${
       details.Title
     }</td><td><div>${
       details.USDDaily == "" || details.USDDaily == null
         ? ""
-        : `USD ${details.USDDaily}`
+        : `USD: ${details.USDDaily}`
     }</div><div>${
       details.EURDaily == "" || details.EURDaily == null
         ? ""
-        : `EUR ${details.EURDaily}`
+        : `EUR: ${details.EURDaily}`
     }</div><div>${
       details.OtherCurrDaily == "" || details.OtherCurrDaily == null
         ? ""
-        : `${details.OtherCurr}${details.OtherCurrDaily}`
+        : `${details.OtherCurr}: ${details.OtherCurrDaily}`
     }</div></td><td><div>${
       details.USDHourly == "" || details.USDHourly == null
         ? ""
-        : `USD ${details.USDHourly}`
+        : `USD: ${details.USDHourly}`
     }</div><div>${
       details.EURHourly == "" || details.EURHourly == null
         ? ""
-        : `EUR ${details.EURHourly}`
+        : `EUR: ${details.EURHourly}`
     }</div><div>${
       details.OtherCurrHourly == "" || details.OtherCurrHourly == null
         ? ""
-        : `${details.OtherCurr}${details.OtherCurrHourly}`
+        : `${details.OtherCurr}: ${details.OtherCurrHourly}`
     }</div></td><td>${
-      details.EffectiveDate == null ? "" : details.EffectiveDate
+      details.EffectiveDate == "Not Available" ? "Not Available" : new Date(details.EffectiveDate).toLocaleDateString()
     }</td></tr>`;
   });
+
+
+
+
+
+
   $("#SdhEmpTbody").html(EmpTable);
   $("#SdhOutsideTbody").html(OutTable);
   $("#SdhAffilateTbody").html(AffTable);
@@ -1293,29 +1739,35 @@ async function getTableData() {
   bindAllDetailTable(options);
   bindOfficeTable(options);
   bindBillingRateTable(options);
+  // bindStaffAvailTable(options);
+  SdhEmpTableRowGrouping(1,"StaffAvailabilityTable",bindStaffAvailTable);
   UserProfileDetail();
+     
 }
 const bindEmpTable = (options) => {
-  $("#SdhEmpTable").DataTable(options);
+  (<any>$("#SdhEmpTable")).DataTable(options);
 };
 const bindOutTable = (options) => {
-  $("#SdhOutsideTable").DataTable(options);
+  (<any>$("#SdhOutsideTable")).DataTable(options);
 };
 const bindAffTable = (options) => {
-  $("#SdhAffilateTable").DataTable(options);
+  (<any>$("#SdhAffilateTable")).DataTable(options);
 };
 const bindAlumTable = (options) => {
-  $("#SdhAllumniTable").DataTable(options);
+  (<any>$("#SdhAllumniTable")).DataTable(options);
 };
 const bindAllDetailTable = (options) => {
-  $("#SdhAllPeopleTable").DataTable(options);
+  (<any>$("#SdhAllPeopleTable")).DataTable(options);
 };
 const bindOfficeTable = (option) => {
-  $("#SdgofficeinfoTable").DataTable(option);
+  (<any>$("#SdgofficeinfoTable")).DataTable(option);
 };
 const bindBillingRateTable = (option) => {
-  $("#SdgBillingrateTable").DataTable(option);
+  (<any>$("#SdgBillingrateTable")).DataTable(option);
 };
+const bindStaffAvailTable = (option) =>{
+  (<any>$('#StaffAvailabilityTable')).DataTable(option);
+}
 //Todo TableRowGrouping
 const SdhEmpTableRowGrouping = (colno, tablename, tablefn) => {
   var collapsedGroups = {};
@@ -1405,7 +1857,8 @@ const UserProfileDetail = async () => {
       SelectedUserProfile = UserDetails.filter((li) => {
         return li.Name == SelectedUser;
       });
-
+      
+      useravailabilityDetails(); 
       const specificUser = graph.users
         .getById(SelectedUserProfile[0].Usermail)
         .photo.getBlob()
@@ -1440,17 +1893,17 @@ const UserProfileDetail = async () => {
           editfileHtml += `<div class="quantityFiles"><span class="upload-filename">${file.Name}</span><a filename="${file.Name}" class="clsfileremove">x</a></div>`;
         } else if (file.Name.split(".").pop() == "xlsx" || file.Name.split(".").pop() == "csv") {
           filesHtml += `<div class="doc-section"><span class="excel-doc"></span><a href='${file.ServerRelativeUrl}' target="_blank">${file.Name}</a></div>`;
-          editfileHtml += `<div class="quantityFiles"><span class="upload-filename">${file.Name}</span><a href='${file.ServerRelativeUrl}' filename="${file.Name}" class="clsfileremove">x</a></div>`;
+          editfileHtml += `<div class="quantityFiles"><span class="upload-filename">${file.Name}</span><a  filename="${file.Name}" class="clsfileremove">x</a></div>`;
         } else if (
           file.Name.split(".").pop() == "png" ||
           file.Name.split(".").pop() == "jpg" ||
           file.Name.split(".").pop() == "jpeg"
         ) {
           filesHtml += `<div class="doc-section"><span class="pic-doc"></span><a href='${file.ServerRelativeUrl}' target="_blank">${file.Name}</a></div>`;
-          editfileHtml += `<div class="quantityFiles"><span class="upload-filename">${file.Name}</span><a href='${file.ServerRelativeUrl}' filename="${file.Name}" class="clsfileremove">x</a></div>`;
+          editfileHtml += `<div class="quantityFiles"><span class="upload-filename">${file.Name}</span><a  filename="${file.Name}" class="clsfileremove">x</a></div>`;
         } else {
           filesHtml += `<div class="doc-section"><span class="new-doc"></span><a href='${file.ServerRelativeUrl}' target="_blank">${file.Name}</a></div>`;
-          editfileHtml += `<div class="quantityFiles"><span class="upload-filename">${file.Name}</span><a href='${file.ServerRelativeUrl}' filename="${file.Name}" class="clsfileremove">x</a></div>`;
+          editfileHtml += `<div class="quantityFiles"><span class="upload-filename">${file.Name}</span><a  filename="${file.Name}" class="clsfileremove">x</a></div>`;
         }
       });
   
@@ -1501,20 +1954,44 @@ const UserProfileDetail = async () => {
       }else{
         $("#viewAssistant").html("")  
       } 
-      console.log(SelectedUserProfile[0].LinkedInID);
       
-      
+      if(SelectedUserProfile[0].PhoneNumber)
+          {
+              var html="";
+              var phno=SelectedUserProfile[0].PhoneNumber
+              var val=phno.split("^");
+              console.log("Split");
+              console.log(val);
+              if(val.length>1)
+              {
+                for(var i=0;i<val.length-1;i++)
+              {
+                var temp=val[i].split("-");
+                if(temp[1]==" ")
+                {
+                  html+="Not Available";
+                }
+                else{
+                  html+=val[i]+";";
+                }
+              }
+              $("#user-phone").html(html);
+              }
+              else{
+                $("#user-phone").val("Not Available");
+              }
+            }
       // $('#linkedinIDview').html(`<span class="linkedInBtn" id="linkedInBtn">Link</span>`);
-      $('#linkedinIDview').html(`<a href="${SelectedUserProfile[0].LinkedInID.Url}" target ='_blank' data-interception="off">Link</a>`);
+      $('#linkedinIDview').html(`<a href="${SelectedUserProfile[0].LinkedInID.Url}" target ='_blank' data-interception="off"><span class="icon-linkedin"></span></a>`);
       $('#PSignOther').html(SelectedUserProfile[0].SignOther);
       $('#PChildren').html(SelectedUserProfile[0].Child);
       $("#user-Designation").html(SelectedUserProfile[0].Affiliation);
       $("#user-staff-function").html(SelectedUserProfile[0].Title)
       $("#user-job-title").html(SelectedUserProfile[0].JobTitle);
       $("#user-location").html(SelectedUserProfile[0].Location);
-      $("#user-office").html(SelectedUserProfile[0].Location);
-      $("#user-phone").html(SelectedUserProfile[0].PhoneNumber);
-      $("#user-mail").html(SelectedUserProfile[0].Usermail);
+      // $("#user-office").html(SelectedUserProfile[0].Location);
+      // $("#user-phone").html(SelectedUserProfile[0].PhoneNumber);
+      // $("#user-mail").html(SelectedUserProfile[0].Usermail);
       // $("#personal-mail").html(SelectedUserProfile[0].UserPersonalMail);
       $("#UserProfileName").html(SelectedUserProfile[0].Name);
       $("#UserProfileEmail").html(
@@ -1546,7 +2023,7 @@ const UserProfileDetail = async () => {
       $("#workscheduleViewSec").html(
         SelectedUserProfile[0].StaffStatus == "Part-time"
           ? `
-      <div class="d-flex"><label>Work Schedule</label><p class="lblRight" id="workSchedule">${SelectedUserProfile[0].WorkSchedule == null ||SelectedUserProfile[0].WorkSchedule == ""?"N/A":SelectedUserProfile[0].WorkSchedule}</p></div>`
+      <div class="d-flex"><label>Work Schedule</label><p class="lblRight" id="workSchedule">${SelectedUserProfile[0].WorkSchedule == null ||SelectedUserProfile[0].WorkSchedule ==  ""?"Not Available":SelectedUserProfile[0].WorkSchedule}</p></div>`
           : ""
       );
       var finalmonth: any = "";
@@ -1556,23 +2033,24 @@ const UserProfileDetail = async () => {
       var yyyy = new Date(SelectedUserProfile[0].EffectiveDate).getFullYear();
       var dateformat = yyyy + "-" + finalmonth + "-" + dd;
       $("#EffectiveDateEdit").val(dateformat);
+      
     });
   });
-
-  $("#USDDailyEdit").change(() => {
+  
+  $("#USDDailyEdit").keyup(() => {
     var usdvalue: any = $("#USDDailyEdit").val();
     var finalusdval = usdvalue / 8;
     $("#USDHourlyEdit").val(finalusdval);
   });
-  $("#EURDailyEdit").change(() => {
+  $("#EURDailyEdit").keyup(() => {
     var eurdaily: any = $("#EURDailyEdit").val();
     var finaleurval = eurdaily / 8;
     $("#EURHourlyEdit").val(finaleurval);
   });
-  $("#ODailyEdit").change(() => {
+  $("#ODailyEdit").keyup(() => {
     var ovalue: any = $("#ODailyEdit").val();
     var finalovalue = ovalue / 8;
-    $("#OHourlyEdit").val(finalovalue);
+    $("#OHourlyEdit").val(finalovalue); 
   });
   $(document).on("click", ".clsfileremove", function () {
     let filename = $(this).attr("filename");
@@ -1584,6 +2062,7 @@ const UserProfileDetail = async () => {
       .recycle()
       .then(function (data) {});
   });
+  
 };
 
 const editFunction = async() => {
@@ -1836,7 +2315,8 @@ const editsubmitFunction = async () => {
   }
   
 
-  const update = await sp.web
+  try {
+    const update = await sp.web
     .getList(listUrl + "StaffDirectory")
     .items.getById(ItemID)
     .update({
@@ -1882,6 +2362,11 @@ const editsubmitFunction = async () => {
       AssistantId: profileID,
     });
   location.reload();
+  } catch (error) {
+    console.log(error);
+    
+    
+  }
 }; 
 const editcancelFunction = () => {
   const viewDir = document.querySelector(".view-directory");
@@ -1894,6 +2379,33 @@ const editcancelFunction = () => {
 // sp-peoplepicker-editorInput
 };
 
+const useravailabilityDetails = async() =>{
+  console.log(SelectedUserProfile[0].Name);
+  
+  let availList = await sp.web
+  .getList(listUrl + "SDGAvailability")
+  .items.select("*","UserName").filter(`UserName eq '${SelectedUserProfile[0].Name}'`)
+  .getAll();
+  console.log(availList); 
+  
+  let availTableHtml = "";
+  availList.forEach((avail)=>{
+    availTableHtml  += `<tr><td>${avail.Project}</td><td>${new Date(avail.StartDate).toLocaleDateString()}</td><td>${new Date(avail.EndDate).toLocaleDateString()}</td><td>${avail.Percentage}%</td><td>${avail.Comments}</td><td><div class="d-flex"><div class="action-btn action-edit" data-toggle="modal" data-target="#addprojectmodal" data-id="${avail.ID}" id="editProjectAvailability"></div><div class="action-btn action-delete" data-id="${avail.ID}" id="deleteProjectAvailability"> </div></div></td></tr>`
+  });
+  
+  $("#UserAvailabilityTbody").html("");
+  $("#UserAvailabilityTbody").html(availTableHtml);
+  var options = {  
+    order: [[0, "asc"]],
+    destroy:true,
+    
+  }; 
+ var userAvailTable =  $("#UserAvailabilityTable").DataTable(options);
+ $('.usernametag').on( 'click', function () {
+  userAvailTable.destroy();
+} );
+}
+
 function removeSelectedfile(filename) {
   for (var i = 0; i < bioAttachArr.length; i++) {
     if (bioAttachArr[i].name == filename) {
@@ -1903,7 +2415,9 @@ function removeSelectedfile(filename) {
     } 
   }
 }
-  
+const removeAvailProject = (ID) =>{
+  sp.web.getList(listUrl + "SDGAvailability").items.getById(ID).delete();
+}
 const multipleMobNo = () => {
   $("#mobileNoSec").append(  
     `<div class="d-flex mobNumbers"><select class="mobNoCode">${CCodeHtml}</select><input type="number" class="mobNo" id="mobileno1"/><span class="removeMobNo remove-icon"></span></div>`
@@ -1919,3 +2433,101 @@ const multipleEmergencyNo = () => {
     `<div class="d-flex emergencyNumbers"><select class="emergencyNoCode">${CCodeHtml}</select><input type="number" class="mobNo" id="emergencyno1"/><span class="removeHomeNo remove-icon"></span></div>`
   );
 };
+const fillEditSection = (ID) =>{
+  
+   sp.web
+  .getList(listUrl + "SDGAvailability").items.getById(ID).get().then((item:any)=>{
+    var Sfinalmonth: any = "";
+      var Sdd = new Date(item.StartDate).getDate();
+      var Smm = new Date(item.StartDate).getMonth() + 1;
+      Smm < 10 ? (Sfinalmonth = "0" + Smm) : (Sfinalmonth = Smm);
+      var Syyyy = new Date(item.StartDate).getFullYear();
+      var Sdateformat = Syyyy + "-" + Sfinalmonth + "-" + Sdd;
+
+      var Efinalmonth: any = "";
+      var Edd = new Date(item.EndDate).getDate();
+      var Emm = new Date(item.EndDate).getMonth() + 1;
+      Emm < 10 ? (Efinalmonth = "0" + Smm) : (Efinalmonth = Emm);
+      var Eyyyy = new Date(item.EndDate).getFullYear();
+      var Edateformat = Eyyyy + "-" + Efinalmonth + "-" + Edd;
+    $("#projectName").val(item.Project);
+    $("#projectStartDate").val(Sdateformat);
+    $("#projectEndDate").val(Edateformat);
+    $("#projectPercent").val(item.Percentage);
+    $("#practiceAreaDD").val(item.ProjectArea);
+    $("#client").val(item.Client);
+    $("#projectCode").val(item.ProjectCode);
+    $("#ProjectLocation").val(item.ProjectLocation);
+    $("#projectAvailNotes").val(item.Notes);
+    $("#Projectcomments").val(item.Comments)
+  })
+}
+const availSubmitFunc = async() =>{
+
+  let ProjectPercent = 0;
+  $("#projectPercent").val() == ""?ProjectPercent=0:ProjectPercent=parseInt(<any>$("#projectPercent").val())
+
+
+  const submitProject = await sp.web
+  .getList(listUrl + "SDGAvailability")
+  .items.add(
+    {
+      UserName:SelectedUserProfile[0].Name,
+      Project:$("#projectName").val(),
+      StartDate:$("#projectStartDate").val(),
+      EndDate:$("#projectEndDate").val(),
+      Percentage:ProjectPercent,
+      ProjectArea:$("#practiceAreaDD").val(),
+      Client:$("#client").val(),
+      ProjectCode:$("#projectCode").val(),
+      ProjectLocation:$("#ProjectLocation").val(),
+      Notes:$("#projectAvailNotes").val(),
+      Comments:$("#Projectcomments").val()
+    }
+  )
+  console.log(submitProject);
+  $("#projectName").val("")
+$("#projectStartDate").val("")
+$("#projectEndDate").val("")
+$("#projectPercent").val("")
+$("#practiceAreaDD").val("")
+$("#client").val("")
+$("#projectCode").val("")
+$("#ProjectLocation").val("")
+$("#projectAvailNotes").val("")
+$("#Projectcomments").val("")
+location.reload();
+}
+const availUpdateFunc = () =>{
+  let ProjectPercent = 0;
+  $("#projectPercent").val() == ""?ProjectPercent=0:ProjectPercent=parseInt(<any>$("#projectPercent").val())
+  const updateProject =  sp.web
+  .getList(listUrl + "SDGAvailability").items.getById(AvailEditID).update(
+    {
+      UserName:SelectedUserProfile[0].Name,
+      Project:$("#projectName").val(),
+      StartDate:$("#projectStartDate").val(),
+      EndDate:$("#projectEndDate").val(),
+      Percentage:ProjectPercent,
+      ProjectArea:$("#practiceAreaDD").val(),
+      Client:$("#client").val(),
+      ProjectCode:$("#projectCode").val(),
+      ProjectLocation:$("#ProjectLocation").val(),
+      Notes:$("#projectAvailNotes").val(),
+      Comments:$("#Projectcomments").val()
+    }
+  );
+  $("#projectName").val("")
+  $("#projectStartDate").val("")
+  $("#projectEndDate").val("")
+  $("#projectPercent").val("")
+  $("#practiceAreaDD").val("")
+  $("#client").val("")
+  $("#projectCode").val("")
+  $("#ProjectLocation").val("")
+  $("#projectAvailNotes").val("")
+  $("#Projectcomments").val("")
+  AvailEditID = 0;
+  AvailEditFlag = false;
+  location.reload();
+}

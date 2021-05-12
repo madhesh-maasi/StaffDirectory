@@ -118,7 +118,8 @@
   font-size: 24px;
   color: #343434;
 }
-table#SdgofficeinfoTable th {
+table#SdgofficeinfoTable th,
+#StaffAvailabilityTable table {
   width: auto !important;
 }
 #SdhOutsideTable_info,
@@ -146,6 +147,9 @@ table#SdgofficeinfoTable th {
   border-bottom: 1px solid #878787;
 }
 div#SdhEmpTable_info {
+  display: none;
+}
+.dataTables_info {
   display: none;
 }
 .dataTables_wrapper .dataTables_paginate {
@@ -211,7 +215,13 @@ a.paginate_button.current {
 #SdgBillingrateTable th:nth-child(3),
 #SdgBillingrateTable td:nth-child(3),
 #SdgBillingrateTable th:nth-child(6),
-#SdgBillingrateTable td:nth-child(6) {
+#SdgBillingrateTable td:nth-child(6),
+/* #StaffAvailabilityTable th:nth-child(2),
+#StaffAvailabilityTable td:nth-child(2), */
+#StaffAvailabilityTable th:nth-child(3),
+#StaffAvailabilityTable td:nth-child(3),
+#StaffAvailabilityTable th:nth-child(6),
+#StaffAvailabilityTable td:nth-child(6) {
   display: table-cell;
 }
 tr.dtrg-group.dtrg-start td {
@@ -287,12 +297,13 @@ p.profile-user-mail {
   display: flex;
 }
 .user-info label {
-  width: 120px;
+  min-width: 120px;
   color: #545454;
 }
 .user-info .title-font {
   color: #d62c02d0;
   font-weight: 400;
+  padding: 10px;
 }
 .usernametag {
   cursor: pointer;
@@ -340,7 +351,7 @@ span.display-picture {
   border-bottom: 1px solid #d62d02 !important;
 }
 .tab-section label {
-  width: 150px;
+  min-width: 150px;
   font-weight: 400;
   padding-top: 6px;
 }
@@ -372,10 +383,12 @@ span.display-picture {
 }
 .DInfo-left > div,
 .DInfo-right > div {
-  margin-bottom: 24px;
+  /* margin-bottom: 24px; */
 }
 .lblRight {
   color: #d62c01b3;
+  word-break: break-all;
+  padding-top: 6px;
 }
 .exp label {
   font-weight: 600;
@@ -449,7 +462,6 @@ span.display-picture {
   width: 100%;
   display: block;
   height: 70px;
-  /* border: 1px solid grey; */
   resize: none;
   outline: 0;
   padding: 3px;
@@ -459,13 +471,19 @@ span.display-picture {
 } */
 .edit-directory input,
 .edit-directory select,
-.edit-directory textarea {
+.edit-directory textarea,
+.add-project-modal input,
+.add-project-modal select,
+.add-project-modal textarea {
   border: 1px solid #a0a0a0;
   padding: 3px;
   margin-bottom: 16px;
   outline: 0;
 }
-.edit-directory input {
+.edit-directory input,
+.add-project-modal input,
+.add-project-modal select,
+.add-project-modal textarea {
   width: 100%;
 }
 .edit-directory select {
@@ -502,7 +520,13 @@ span.display-picture {
   outline: 0;
 }
 .btn-submit,
-.btn-submit:hover {
+.btn-submit:hover,
+.btn-submit:focus,
+.btn-add-project,
+.btn-add-project:hover,
+.btn-add-project:focus,
+.btn-delete-project,
+.btn-delete-project:hover .btn-delete-project:focus {
   color: #fff;
   background: #d62d02;
   border: 1px solid #d62d02;
@@ -650,4 +674,143 @@ li.ms-core-menu-footer {
 .sp-peoplepicker-delImage:hover {
   margin-left: 8px;
   color: tomato;
+}
+.text-right {
+  text-align: right;
+}
+.availability-btn-section {
+  text-align: right;
+}
+.modal-body.add-project-modal {
+  padding: 16px 40px;
+}
+.modal-body.add-project-modal label {
+  width: 200px;
+}
+.modal-dialog {
+  width: 800px !important;
+}
+.add-project-modal input,
+.add-project-modal select {
+  height: 32px;
+}
+.add-project-modal textarea {
+  resize: none;
+}
+.modal-content {
+  border-radius: 0 !important;
+}
+.modal-footer {
+  border-top: 0;
+}
+.modal-header {
+  border-bottom: 0;
+}
+.action-delete {
+  background: url(../img/TrashIcon.png);
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 24px;
+  height: 24px;
+}
+.availability-progress-bar {
+  width: 90%;
+  height: 30px;
+  margin-right: 8px;
+}
+.progress-value {
+  border-radius: 20px;
+}
+.availability-progress-bar {
+  border-radius: 20px;
+}
+#UserAvailabilityTable_length {
+  display: none;
+}
+.action-edit {
+  background: url(../img/pencil.png);
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 24px;
+  height: 24px;
+}
+.action-btn {
+  margin: 0 8px;
+  cursor: pointer;
+}
+td.user-details-td {
+  position: relative;
+}
+.HUserDetails {
+  position: absolute;
+  top: 16px;
+  overflow: hidden;
+  background: transparent;
+  width: 150px;
+  height: 20px;
+  background: transparent;
+}
+.HUserDetails:hover {
+  position: absolute;
+  width: 280px;
+  background: #fff8f6;
+  border: 1px solid #ffc7b8;
+  height: 340px;
+  padding: 20px;
+  text-align: center;
+  top: 30px;
+  z-index: 1;
+}
+.user-name {
+  font-weight: bold;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  font-size: 16px;
+}
+.user-JTitle {
+  color: #818181;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.user-location {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.user-avail-title {
+  font-weight: bold;
+  font-size: 16px;
+}
+/* .HUserDetails {
+  position: absolute;
+  background: #fff8f6;
+  border: 1px solid #ffc7b8;
+  padding: 20px 32px;
+  text-align: center;
+} */
+img.userimg {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+.HUserDetails img {
+  opacity: 0;
+}
+.HUserDetails:hover img {
+  opacity: 1;
+}
+.icon-linkedin {
+  background-image: url("../../ExternalRef/img/icon-linkedin.png");
+  margin: 5px;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  background-position: 50%;
+}
+div#userpersonalmail {
+  width: 300px;
+  word-break: break-all;
 }
