@@ -32,7 +32,7 @@ SPComponentLoader.loadCss(
 SPComponentLoader.loadCss(
   "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
 );
-import "datatables";
+//import "datatables";
 
 require("datatables.net-dt");
 require("datatables.net-rowgroup-dt");
@@ -190,8 +190,8 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
          <div class="card-body">
          <div class="filter-section">
          <ul>
-         <li><a href="#">By Last Name</a></li>
-         <li><a href="#">By First Name</a></li>
+         <li><a href="#" class="SDGOfficeInfoLastName">By Last Name</a></li>
+         <li><a href="#"class="SDGOfficeInfoFirstName">By First Name</a></li>
          </ul>
          </div>
          </div>
@@ -220,8 +220,8 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
          <div class="card-body">
          <div class="filter-section">
          <ul>
-         <li><a href="#">By Last Name</a></li>
-         <li><a href="#">By First Name</a></li>
+         <li><a href="#" class="SDGBillingRateLastName">By Last Name</a></li>
+         <li><a href="#" class="SDGBillingRateFirstName">By First Name</a></li>
          </ul>
          </div>
          </div>
@@ -1068,7 +1068,7 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
         destroy: true,
         order: [[1, "asc"]],
       };
-      bindAffTable(options);
+      bindStaffAvailTable(options);
     });
     // Allumni
     $(".SDHAlumniLastName").click(() => {
@@ -1153,7 +1153,105 @@ export default class StaffdirectoryWebPart extends BaseClientSideWebPart<IStaffd
       };
       bindAllDetailTable(options);
     });
-
+    $(".StaffAvailability").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+        }
+        if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+        }
+      var options = {
+        destroy: true,
+        order: [[0, "asc"]],
+      };
+      bindAllDetailTable(options);
+    });
+    $(".SDGBillingRate").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+        }
+        if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+        }
+      var options = {
+        destroy: true,
+        order: [[0, "asc"]],
+      };
+      bindBillingRateTable(options);
+    });
+    $(".SDGBillingRateLastName").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+        }
+        if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+        }
+      var options = {
+        destroy: true,
+        order: [[2, "asc"]],
+      };
+      bindBillingRateTable(options);
+    });
+    $(".SDGBillingRateFirstName").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+        
+        }
+        if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+        }
+      var options = {
+        destroy: true,
+        order: [[1, "asc"]],
+      };
+      bindBillingRateTable(options);
+    });
+    $(".SDGOfficeInfoFirstName").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+      }
+      if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+      }
+        var options = {
+          destroy: true,
+          order: [[1, "asc"]],
+        };
+        bindOfficeTable(options);
+    });$(".SDGOfficeInfoLastName").click(() => {
+      if (viewDir.classList["contains"]("hide")) {
+        viewDir.classList.remove("hide");
+        editDir.classList.add("hide");
+        editbtn.classList.remove("hide");
+      }
+      if (tableSection.classList.contains("hide")) {
+        tableSection.classList.remove("hide");
+        userpage.classList.add("hide");
+      }
+        var options = {
+          destroy: true,
+          order: [[2, "asc"]],
+        };
+        bindOfficeTable(options);
+    });
     $("#btnEdit").click(() => {
       editFunction();
     });
@@ -1302,12 +1400,14 @@ const onLoadData = async () => {
   let StaffFunctionDD = document.querySelector("#StaffFunctionEdit");
   let StaffAffiliatesDD = document.querySelector("#StaffAffiliatesEdit");
   let AvailProjectTypeDD = document.querySelector("#projecttypeDD");
+  let AvailPracticeAreaDD = document.querySelector("#practiceAreaDD");
   let LocOptionHtml = "";
   let staffOptionHtml = "";
   let otherCurrHtml = "";
   let StaffFunHtml = "";
   let StaffAffHtml = "";
   let AvailProjTypeHtml = "";
+  let AvailPracAreaDD = "";
   // let CCodeHtml = "";
   let listLocation = await sp.web
     .getList(listUrl + "StaffDirectory")
@@ -1337,9 +1437,16 @@ const onLoadData = async () => {
   .getList(listUrl + "SDGAvailability")
   .fields.filter("EntityPropertyName eq 'ProjectType'")
   .get();
+  let AvailPracticeArea = await sp.web
+  .getList(listUrl + "SDGAvailability")
+  .fields.filter("EntityPropertyName eq 'ProjectArea'")
+  .get();
 
   AvailProjectType[0]["Choices"].forEach((type) => {
     AvailProjTypeHtml += `<option value="${type}">${type}</option>`;
+  });
+    AvailPracticeArea[0]["Choices"].forEach((Area) => {
+      AvailPracAreaDD += `<option value="${Area}">${Area}</option>`;
   });
 
 
@@ -1363,6 +1470,7 @@ const onLoadData = async () => {
     StaffAffHtml += `<option value="${Aff}">${Aff}</option>`;
   });
   AvailProjectTypeDD.innerHTML = AvailProjTypeHtml;
+  AvailPracticeAreaDD.innerHTML = AvailPracAreaDD;
   LocationDD.innerHTML = LocOptionHtml;
   StaffStatusDD.innerHTML = staffOptionHtml;
   othercurrDD.innerHTML = otherCurrHtml;
@@ -2400,7 +2508,7 @@ const useravailabilityDetails = async() =>{
     destroy:true,
     
   }; 
- var userAvailTable =  $("#UserAvailabilityTable").DataTable(options);
+ var userAvailTable =  (<any>$("#UserAvailabilityTable")).DataTable(options);
  $('.usernametag').on( 'click', function () {
   userAvailTable.destroy();
 } );
@@ -2464,9 +2572,18 @@ const fillEditSection = (ID) =>{
 }
 const availSubmitFunc = async() =>{
 
+  let availdetails = await sp.web
+  .getList(listUrl + "SDGAvailability")
+  .items.select("*","UserName").filter(`UserName eq '${SelectedUserProfile[0].Name}'`)
+  .getAll();
+  console.log("availdetails");
+  console.log(availdetails); 
+  let strdate=$("#projectStartDate").val();
+  let enddate=$("#projectEndDate").val();
+
+
   let ProjectPercent = 0;
   $("#projectPercent").val() == ""?ProjectPercent=0:ProjectPercent=parseInt(<any>$("#projectPercent").val())
-
 
   const submitProject = await sp.web
   .getList(listUrl + "SDGAvailability")
@@ -2476,7 +2593,7 @@ const availSubmitFunc = async() =>{
       Project:$("#projectName").val(),
       StartDate:$("#projectStartDate").val(),
       EndDate:$("#projectEndDate").val(),
-      Percentage:ProjectPercent,
+      Percentage:ProjectPercent.toString(),
       ProjectArea:$("#practiceAreaDD").val(),
       Client:$("#client").val(),
       ProjectCode:$("#projectCode").val(),
@@ -2508,7 +2625,7 @@ const availUpdateFunc = () =>{
       Project:$("#projectName").val(),
       StartDate:$("#projectStartDate").val(),
       EndDate:$("#projectEndDate").val(),
-      Percentage:ProjectPercent,
+      Percentage:ProjectPercent.toString(),
       ProjectArea:$("#practiceAreaDD").val(),
       Client:$("#client").val(),
       ProjectCode:$("#projectCode").val(),
