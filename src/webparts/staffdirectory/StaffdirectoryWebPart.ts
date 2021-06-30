@@ -2141,7 +2141,7 @@ const onLoadData = async () => {
           var leastEndDate =EndDateArr[i];
            modifiedArray.forEach((cal)=>{
             var edate=new Date(new Date(cal.EndDate).toLocaleDateString()+" 00:00");
-            if(new Date(edate).toLocaleDateString()==new Date(leastEndDate).toLocaleDateString())
+            if(new Date(<any>edate).toLocaleDateString()==new Date(leastEndDate).toLocaleDateString())
             fDateArr.push(cal)
           });
           fDateArr.map((b)=>b.Percentage?endPercentage+=parseInt(b.Percentage):endPercentage+=0);
@@ -4378,14 +4378,14 @@ const useravailabilityDetails = async() =>{
           {
             var Avainewday=new Date(new Date(WeekArr[0]).toLocaleDateString()+" 00:00");
             Avainewday.setDate(Avainewday.getDate() + 1);
-            $('.todayAvail').html(`<label>Next 100% available on :${new Date(Avainewday).toLocaleDateString()}</label>`)
+            $('.todayAvail').html(`<label>Next 100% available on :${new Date(<any>Avainewday).toLocaleDateString()}</label>`)
             $('.NextAvail').html(" ")
           }
           else if(new Date(WeekArr[0]).getDay()==6)
           {
             var Avainewday=new Date(new Date(WeekArr[0]).toLocaleDateString()+" 00:00");
             Avainewday.setDate(Avainewday.getDate() + 2);
-            $('.todayAvail').html(`<label>Next 100% available on :${new Date(Avainewday).toLocaleDateString()}</label>`)
+            $('.todayAvail').html(`<label>Next 100% available on :${new Date(<any>Avainewday).toLocaleDateString()}</label>`)
             $('.NextAvail').html(" ")
           }
         }
@@ -4487,14 +4487,14 @@ const useravailabilityDetails = async() =>{
           {
             var Avainewday=new Date(new Date(WeekArr1[0]).toLocaleDateString()+" 00:00");
             Avainewday.setDate(Avainewday.getDate() + 1);
-            $('.NextAvail').html(`<label>Next 100% available on :${new Date(Avainewday).toLocaleDateString()}</label>`)
+            $('.NextAvail').html(`<label>Next 100% available on :${new Date(<any>Avainewday).toLocaleDateString()}</label>`)
             
           }
           else if(new Date(WeekArr1[0]).getDay()==6)
           {
             var Avainewday=new Date(new Date(WeekArr1[0]).toLocaleDateString()+" 00:00");
             Avainewday.setDate(Avainewday.getDate() + 2);
-            $('.NextAvail').html(`<label>Next 100% available on :${new Date(Avainewday).toLocaleDateString()}</label>`)
+            $('.NextAvail').html(`<label>Next 100% available on :${new Date(<any>Avainewday).toLocaleDateString()}</label>`)
             
           }
         }
